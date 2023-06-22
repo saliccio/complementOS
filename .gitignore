@@ -1,0 +1,5 @@
+bin
+cmd.txt
+*.o
+*.bin
+image

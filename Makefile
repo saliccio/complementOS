@@ -1,3 +1,5 @@
+INCLUDE=-Ikernel -Idrivers
+
 C_SOURCES = $(wildcard kernel/*.c drivers/*.c)
 C_HEADERS = $(wildcard kernel/*.h drivers/*.h)
 
@@ -29,9 +31,9 @@ bin/kernel.bin: kernel/kernel_entry.o ${OBJ}
 %.o: %.asm
 	nasm -f elf $^ -o $@
 
-# Generic - C code to object file
+# Generic - C code to object file (Give kernel folder as include path)
 %.o: %.c ${C_HEADERS}
-	gcc -m32 -ffreestanding -c $< -o $@ -fno-pie
+	gcc $(INCLUDE) -m32 -ffreestanding -c $< -o $@ -fno-pie
 	
 # Generic - Assembly code to binary file
 %.bin: %.asm

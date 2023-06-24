@@ -3,7 +3,7 @@
 #include <memory.h>
 
 int setup_screen() {
-	set_cursor_offset(0);
+	clear_screen();
 	return 1;
 }
 

@@ -3,3 +3,4 @@ cmd.txt
 *.o
 *.bin
 image
+.vscode/

@@ -17,7 +17,7 @@ jmp CODE_SEG:pm_start  ; Initiate a FAR jump to ensure the pipeline flushes (to 
 [bits 16]  ; Ensure 16-bit real mode to make BIOS disk interrupt to load the kernel (0x13)
 load_kernel:
 mov bx, KERNEL_OFFSET  ; Where to load in memory
-mov dh, 15  ; Sector count
+mov dh, 40  ; Sector count
 mov dl, [BOOTING_DRIVE]  ; Drive to boot from
 call disk_load
 

@@ -6,11 +6,14 @@ CINCLUDE=-Ikernel -Idrivers
 # -fno-pie: No position independent code (PIE), needed for IA-32
 CFLAGS = -g -m32 -ffreestanding -fno-pie
 
-C_SOURCES = $(wildcard kernel/*.c drivers/*.c)
-C_HEADERS = $(wildcard kernel/*.h drivers/*.h)
+ASM_SOURCES = $(wildcard kernel/*/*.asm)
+ASM_OBJ = ${ASM_SOURCES:.asm=.o}
 
-OBJ = ${C_SOURCES:.c=.o}
-BIN = $(wildcard boot/*.bin boot/*.o kernel/*.bin kernel/*.o drivers/*.bin drivers/*.o)
+C_SOURCES = $(wildcard kernel/*.c drivers/*.c kernel/*/*.c drivers/*/*.c)
+C_HEADERS = $(wildcard kernel/*.h drivers/*.h kernel/*/*.h drivers/*/*.h)
+C_OBJ = ${C_SOURCES:.c=.o}
+
+BIN = $(wildcard boot/*.bin boot/*.o kernel/*.bin kernel/*.o kernel/*/*.bin kernel/*/*.o drivers/*.bin drivers/*.o)
 LINKER_SCRIPT = linker_settings.lds
 
 GDB_ADDRESS = localhost:1234
@@ -32,11 +35,11 @@ bin/boot.bin: boot/bootloader.asm
 	nasm -i boot -f bin $< -o $@
 
 # Create binary for kernel
-bin/kernel.bin: kernel/kernel_entry.o ${OBJ}
+bin/kernel.bin: kernel/kernel_entry.o ${C_OBJ} ${ASM_OBJ}
 	ld -m elf_i386 -T $(LINKER_SCRIPT) -o $@ --oformat binary $^
 
 # ELF object file generated for debugging purposes
-bin/kernel.elf: kernel/kernel_entry.o ${OBJ}
+bin/kernel.elf: kernel/kernel_entry.o ${C_OBJ} ${ASM_OBJ}
 	ld -m elf_i386 -T $(LINKER_SCRIPT) -o $@ $^
 
 # Generic - Assembly code to object file

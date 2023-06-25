@@ -1,6 +1,9 @@
 #include "d_screen.h"
 #include <io.h>
-#include <memory.h>
+#include <util/memory.h>
+#include <types.h>
+#include <util/conversions.h>
+#include <stdarg.h>
 
 int setup_screen() {
 	clear_screen();
@@ -22,9 +25,9 @@ void set_cursor_offset(int offset) {
     offset /= 2;  // convert the offset from address offset to char offset
 
     port_write_byte(SCREEN_CTRL_PORT, 14);
-    port_write_byte(SCREEN_DATA_PORT, (unsigned char)(offset >> 8));  // to write the upper byte, right-shift the given offset by 8 bits
+    port_write_byte(SCREEN_DATA_PORT, (u8)(offset >> 8));  // to write the upper byte, right-shift the given offset by 8 bits
     port_write_byte(SCREEN_CTRL_PORT, 15);
-    port_write_byte(SCREEN_DATA_PORT, (unsigned char)(offset));
+    port_write_byte(SCREEN_DATA_PORT, (u8)(offset));
 }
 
 void scroll_below() {
@@ -40,7 +43,7 @@ void scroll_below() {
 }
 
 void print_char_at(int row, int column, char character, char attribute) {
-	char *video_memory_ptr = (char *) VIDEO_ADDRESS;
+	u8 *video_memory_ptr = (u8 *) VIDEO_ADDRESS;
 
     if (attribute == DEFAULT_ATTR_BYTE) {
         attribute = COLOR_DEFAULT;
@@ -87,8 +90,51 @@ void print_at(int row, int column, const char* string) {
     }
 }
 
-void print(const char* string) {
+void print(const char *string) {
     print_at(-1, -1, string);
+}
+
+void printf(const char *format, ...) {
+    va_list args;
+    va_start(args, format);
+
+    int i = 0;
+    char c;
+    bool is_in_format_mode = false;
+    while ((c = format[i]) != 0) {
+        if (is_in_format_mode) {
+            if (c == '%') {  // Process escape %
+                print_char('%', DEFAULT_ATTR_BYTE);
+                is_in_format_mode = false;
+            } else if (c == 'c') {  // Process chars
+                int arg = va_arg(args, int);
+                print_char(arg, DEFAULT_ATTR_BYTE);
+                is_in_format_mode = false;
+            } else if (c == 'd') {  // Process integers
+                int arg = va_arg(args, int);
+                char int_str[INT_MAX_CHARS_10];
+                int_to_str(arg, int_str);
+                print(int_str);
+                is_in_format_mode = false;
+            } else if (c == 'f') {  // Process floats
+                double arg = va_arg(args, double);
+                char float_str[FLOAT_MAX_CHARS_10];
+                print(float_str);
+                is_in_format_mode = false;
+            } else if (c == 's') {  // Process strings
+                const char *arg = va_arg(args, const char*);
+                print(arg);
+                is_in_format_mode = false;
+            }
+        } else if (c == '%') {  // Process format mode entry
+            is_in_format_mode = true;
+        } else {  // Process regular chars in the format string
+            print_char(c, DEFAULT_ATTR_BYTE);
+        }
+        i++;
+    }
+
+    va_end(args);
 }
 
 void clear_screen() {

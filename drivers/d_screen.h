@@ -35,5 +35,8 @@ void print_at(int row, int column, const char* string);
 // Prints the given string, starts at the cursor position.
 void print(const char* string);
 
+// Prints considering given format and ordered parameters.
+void printf(const char *format, ...);
+
 // Clears the whole screen by writing blank characters at all positions.
 void clear_screen();

@@ -17,7 +17,7 @@ int int_to_str(int src, char *dest) {
     }
 
     // Reverse it
-    reverse(dest, i - 1);
+    reverse(dest, i);
 
     dest[i] = '\0';
 
@@ -40,7 +40,7 @@ int int_to_str_truncate_0(int src, char *dest) {
     }
 
     int last_0_index = -1;
-    for (int j = 0; j < i - 1; j++) {  // Get the index of first encountered 0 for the reversed string
+    for (int j = 0; j < i - 1; j++) {  // Get the index of truncation for 0 in the reversed string
         if (dest[j] != '0') {
             break;
         }
@@ -55,7 +55,7 @@ int int_to_str_truncate_0(int src, char *dest) {
     }
 
     // Reverse it
-    reverse(dest, i - 1);
+    reverse(dest, i);
 
     return i;
 }
@@ -68,7 +68,7 @@ int float_to_str(float src, char *dest) {
     dest[int_part_end_index] = '.';
 
     int fractional_part = (float_part * FLOAT_FRACTIONAL_SHIFT_FACTOR);
-    int fractional_part_end_index = int_to_str(fractional_part, dest + int_part_end_index + 1);
+    int fractional_part_end_index = int_to_str_truncate_0(fractional_part, dest + int_part_end_index + 1);
 
     return int_part_end_index + fractional_part_end_index + 1;
 }

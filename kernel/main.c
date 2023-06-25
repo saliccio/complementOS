@@ -5,7 +5,7 @@
 int main() {
 	setup_drivers();
 	
-	print("Welcome to complementOS!");
+	printf("Welcome to complementOS!");
 
 	return 0;
 }

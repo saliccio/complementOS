@@ -59,11 +59,11 @@ clean:
 	rm -rf ${BIN}
 
 # Disassemble OS image (for debugging)
-image.dis: image
+image.dis: bin/image
 	ndisasm -b 32 $< > $@
 	
 # Disassemble kernel binary (for debugging)
-kernel.dis: kernel.bin
+kernel.dis: bin/kernel.bin
 	ndisasm -b 32 $< > $@
 
 # Start QEMU, then GDB to debug

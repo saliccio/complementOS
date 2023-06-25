@@ -119,6 +119,7 @@ void printf(const char *format, ...) {
             } else if (c == 'f') {  // Process floats
                 double arg = va_arg(args, double);
                 char float_str[FLOAT_MAX_CHARS_10];
+                float_to_str(arg, float_str);
                 print(float_str);
                 is_in_format_mode = false;
             } else if (c == 's') {  // Process strings

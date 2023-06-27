@@ -25,7 +25,7 @@ ret
 
 [bits 32]  ; Ensure assembler to from now on, encode the instructions for 32-bit protected mode
 pm_start:  ; Entry point for the protected mode
-cli	 ; Temporarily disable interrupts until an IVT (interrupt vector table) for protected mode is set-up
+cli	 ; Temporarily disable interrupts until an IDT (interrupt descriptor table) for protected mode is set-up
 
 mov ax, DATA_SEG
 mov ds, ax

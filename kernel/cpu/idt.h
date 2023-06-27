@@ -22,8 +22,8 @@ typedef struct {
 
 // Struct for pointing the IDT to the CPU via 'LIDT' instruction
 typedef struct {
-	u32 base;  // Starting address of the IDT
 	u16 limit;  // Size of the IDT - 1
+	u32 base;  // Starting address of the IDT
 } __attribute__((packed)) idt_ptr_t;  // Avoid padding
 
 extern idt_entry_t idt[IDT_NO_OF_ENTRIES];

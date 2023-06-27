@@ -11,16 +11,16 @@
 #define SCREEN_DATA_PORT 0x3D5  // address for the port-mapped data register of the screen device
 
 // Sets the driver up. Returns 1 on success, otherwise 0.
-int setup_screen();
+int screen_setup();
 
 // Returns the address offset in VGA memory to write the next character at.
-int get_cursor_offset();
+int screen_get_cursor_offset();
 
 // Sets the address offset in VGA memory to write the next character at.
-void set_cursor_offset(int offset);
+void screen_set_cursor_offset(int offset);
 
 // Scrolls the video buffer below to allow an empty line to show up at the bottom (by moving all rows back by one).
-void scroll_below();
+void screen_scroll_below();
 
 // Prints the given character to given position (row and column), with an attribute byte.
 // Writes at the cursor if either row or column is negative.
@@ -39,4 +39,4 @@ void print(const char* string);
 void printf(const char *format, ...);
 
 // Clears the whole screen by writing blank characters at all positions.
-void clear_screen();
+void screen_clear();

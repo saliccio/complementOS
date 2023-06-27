@@ -5,12 +5,12 @@
 #include <util/conversions.h>
 #include <stdarg.h>
 
-int setup_screen() {
-	clear_screen();
+int screen_setup() {
+	screen_clear();
 	return 1;
 }
 
-int get_cursor_offset() {
+int screen_get_cursor_offset() {
     // register 14: high byte of cursor offset
     // register 15: low byte of cursor offset
     port_write_byte(SCREEN_CTRL_PORT, 14);  // first, select register 14
@@ -21,7 +21,7 @@ int get_cursor_offset() {
     return cursor_offset;
 }
 
-void set_cursor_offset(int offset) {
+void screen_set_cursor_offset(int offset) {
     offset /= 2;  // convert the offset from address offset to char offset
 
     port_write_byte(SCREEN_CTRL_PORT, 14);
@@ -30,7 +30,7 @@ void set_cursor_offset(int offset) {
     port_write_byte(SCREEN_DATA_PORT, (u8)(offset));
 }
 
-void scroll_below() {
+void screen_scroll_below() {
     // bring all rows back by one
     for (int i = 1; i < MAX_ROWS; i++) {
         char *src_ptr = (char *)VIDEO_ADDRESS + 2 * i * MAX_COLS;
@@ -53,7 +53,7 @@ void print_char_at(int row, int column, char character, char attribute) {
     if (row >= 0 && column >= 0) {
         offset = 2 * (row * MAX_COLS + column);
     } else {
-        offset = get_cursor_offset();
+        offset = screen_get_cursor_offset();
         row = offset / (2 * MAX_COLS);
     }
 
@@ -67,11 +67,11 @@ void print_char_at(int row, int column, char character, char attribute) {
     }
 
     if (offset >= 2 * MAX_COLS * MAX_ROWS) {  // if the offset is overflowed
-        scroll_below();  // scroll the screen to allow an empty line to show up at the bottom
+        screen_scroll_below();  // scroll the screen to allow an empty line to show up at the bottom
         offset -= 2 * MAX_COLS;  // bring the offset back to the last line
     }
 
-    set_cursor_offset(offset);
+    screen_set_cursor_offset(offset);
 }
 
 void print_char(char character, char attribute) {
@@ -80,7 +80,7 @@ void print_char(char character, char attribute) {
 
 void print_at(int row, int column, const char* string) {
     if (row >= 0 && column >= 0) {  // update the cursor position if row and column are valid
-        set_cursor_offset(2 * (row * MAX_COLS + column));
+        screen_set_cursor_offset(2 * (row * MAX_COLS + column));
     }
 
     int i = 0;
@@ -138,7 +138,7 @@ void printf(const char *format, ...) {
     va_end(args);
 }
 
-void clear_screen() {
+void screen_clear() {
     int row, column;
     for (row = 0; row < MAX_ROWS; row++) {
         for (column = 0; column <  MAX_COLS; column++) {
@@ -146,5 +146,5 @@ void clear_screen() {
         }
     }
 
-    set_cursor_offset(0);
+    screen_set_cursor_offset(0);
 }

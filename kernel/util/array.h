@@ -8,3 +8,5 @@ void reverse(u8 *arr, int size);
 int first_index(u8 *arr, int size, u8 token);
 // Returns the index of last encountered token in an array. Returns -1 if it does not exist.
 int last_index(u8 *arr, int size, u8 token);
+// Returns the length of given string.
+int str_len(const char *str);

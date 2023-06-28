@@ -9,7 +9,7 @@ int main() {
 
 	drivers_setup();
 	
-	printf("Welcome to complementOS!");
+	printf("Welcome to complementOS!\n");
 
 	return 0;
 }

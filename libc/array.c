@@ -1,14 +1,23 @@
 #include "array.h"
 
-void reverse(u8 *arr, int size) {
+void reverse(s8 *arr, int size) {
     for (int i = 0; i < size / 2; i++) {
-        u8 tmp = arr[i];
+        s8 tmp = arr[i];
         arr[i] = arr[size - i - 1];
         arr[size - i - 1] = tmp;
     }
 }
 
-int first_index(u8 *arr, int size, u8 token) {
+void reverse_str(s8 *arr) {
+    int size = str_len(arr);
+    for (int i = 0; i < size / 2; i++) {
+        s8 tmp = arr[i];
+        arr[i] = arr[size - i - 1];
+        arr[size - i - 1] = tmp;
+    }
+}
+
+int first_index(s8 *arr, int size, s8 token) {
     for (int i = 0; i < size; i++) {
         if (arr[i] == token) {
             return i;
@@ -17,7 +26,7 @@ int first_index(u8 *arr, int size, u8 token) {
     return -1;
 }
 
-int last_index(u8 *arr, int size, u8 token) {
+int last_index(s8 *arr, int size, s8 token) {
     for (int i = size - 1; i >= 0; i--) {
         if (arr[i] == token) {
             return i;

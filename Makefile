@@ -1,19 +1,21 @@
-CINCLUDE=-Ikernel -Idrivers
+CINCLUDE=-Ikernel -Idrivers -Ilibc
 
 # -g: Include debug information
 # -m32: Compile for IA-32
 # -ffreestanding: No standard library
+# -nostdlib: No stdlib links by default
+# -fno-builtin: Avoid compile-time replacements for stdlib functions
 # -fno-pie: No position independent code (PIE), needed for IA-32
-CFLAGS = -g -m32 -ffreestanding -fno-pie
+CFLAGS = -g -m32 -ffreestanding -nostdlib -fno-builtin -nostartfiles -nodefaultlibs -fno-pie -Wall -Werror -Wextra
 
 ASM_SOURCES = $(wildcard kernel/*/*.asm)
 ASM_OBJ = ${ASM_SOURCES:.asm=.o}
 
-C_SOURCES = $(wildcard kernel/*.c drivers/*.c kernel/*/*.c drivers/*/*.c)
-C_HEADERS = $(wildcard kernel/*.h drivers/*.h kernel/*/*.h drivers/*/*.h)
+C_SOURCES = $(wildcard kernel/*.c drivers/*.c kernel/*/*.c drivers/*/*.c libc/*.c libc/*/*.c)
+C_HEADERS = $(wildcard kernel/*.h drivers/*.h kernel/*/*.h drivers/*/*.h libc/*.h libc/*/*.h)
 C_OBJ = ${C_SOURCES:.c=.o}
 
-BIN = $(wildcard boot/*.bin boot/*.o kernel/*.bin kernel/*.o kernel/*/*.bin kernel/*/*.o drivers/*.bin drivers/*.o)
+BIN = $(wildcard boot/*.bin boot/*.o kernel/*.bin kernel/*.o kernel/*/*.bin kernel/*/*.o drivers/*.bin drivers/*.o libc/*.o libc/*/*.o)
 LINKER_SCRIPT = linker_settings.lds
 
 GDB_ADDRESS = localhost:1234

@@ -1,5 +1,5 @@
 #include "timer.h"
-#include <io.h>
+#include <cpu/io.h>
 
 void timer_init() {
     u32 divisor = HARDWARE_CLOCK_HZ / TIMER_TICKS_PER_SECOND;

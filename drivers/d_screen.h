@@ -1,5 +1,7 @@
 #pragma once
 
+// VGA driver implementation (25x80 mode for now)
+
 #define VIDEO_ADDRESS 0xB8000
 #define MAX_ROWS 25
 #define MAX_COLS 80

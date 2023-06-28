@@ -1,8 +1,8 @@
 #include "d_screen.h"
-#include <io.h>
-#include <util/memory.h>
+#include <cpu/io.h>
+#include <memory.h>
 #include <types.h>
-#include <util/conversions.h>
+#include <conversions.h>
 #include <stdarg.h>
 
 int screen_setup() {
@@ -33,12 +33,12 @@ void screen_set_cursor_offset(int offset) {
 void screen_scroll_below() {
     // bring all rows back by one
     for (int i = 1; i < MAX_ROWS; i++) {
-        char *src_ptr = (char *)VIDEO_ADDRESS + 2 * i * MAX_COLS;
-        char *dest_ptr = (char *)VIDEO_ADDRESS + 2 * (i - 1) * MAX_COLS;
+        u8 *src_ptr = (u8 *)VIDEO_ADDRESS + 2 * i * MAX_COLS;
+        u8 *dest_ptr = (u8 *)VIDEO_ADDRESS + 2 * (i - 1) * MAX_COLS;
         mem_copy(src_ptr, dest_ptr, 2 * MAX_COLS);
     }
 
-    char *last_row_ptr = (char *)VIDEO_ADDRESS + 2 * (MAX_ROWS - 1) * MAX_COLS;  // starting address of the last row
+    u8 *last_row_ptr = (u8 *)VIDEO_ADDRESS + 2 * (MAX_ROWS - 1) * MAX_COLS;  // starting address of the last row
     mem_set(last_row_ptr, 0, 2 * MAX_COLS);  // clears the last row
 }
 

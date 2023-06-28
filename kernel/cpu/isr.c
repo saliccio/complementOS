@@ -1,8 +1,8 @@
 #include "isr.h"
 #include "idt.h"
-#include <io.h>
+#include <cpu/io.h>
 #include <d_screen.h>
-#include <util/conversions.h>
+#include <conversions.h>
 
 void idt_init() {
     idt_assign_isr(0, (u32)_isr0);
@@ -87,7 +87,7 @@ void isr_set_handler(u8 int_number, isr_handler_t handler) {
 
 void irq_general_handler(isr_registers_t registers) {
     port_write_byte(PIC_MASTER_COMMAND_PORT, PIC_EOI_COMMAND);  // ALWAYS send an EOI to the master PIC
-    if (registers.int_no >= PIC_SLAVE_STARTING_IRQ_VECTOR) {  // If the interrupt is processed by the slave PIC, send an EOI to it
+    if (registers.int_no >= PIC_SLAVE_STARTING_IRQ_VECTOR) {  // If the interrupt is handled by the slave PIC, send an EOI to it
         port_write_byte(PIC_SLAVE_COMMAND_PORT, PIC_EOI_COMMAND);
     }
 

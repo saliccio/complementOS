@@ -14,3 +14,6 @@
 
 // Initializes the timer for given frequency value.
 void timer_init();
+
+// Called on timer interrupt requests.
+void timer_interrupt();

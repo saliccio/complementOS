@@ -7,3 +7,11 @@ void timer_init() {
     port_write_byte(TIMER_CHANNEL0_DATA_PORT, low_8(divisor));
     port_write_byte(TIMER_CHANNEL0_DATA_PORT, high_8(divisor));
 }
+
+void timer_interrupt() {
+    static int ticks = 0;
+    ticks++;
+    if (ticks % TIMER_TICKS_PER_SECOND == 0) {
+        //printf("One second!\n");
+    }
+}

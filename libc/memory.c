@@ -13,6 +13,7 @@ void mem_copy_str(const s8 *src_ptr, s8 *dest_ptr) {
         dest_ptr[i] = src_ptr[i];
         i++;
     }
+    dest_ptr[i] = '\0';
 }
 
 void mem_set(u8 *dest_ptr, u8 data, int bytes) {

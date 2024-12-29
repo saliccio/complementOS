@@ -13,7 +13,7 @@
 #define SCREEN_DATA_PORT 0x3D5  // address for the port-mapped data register of the screen device
 
 // Sets the driver up. Returns 1 on success, otherwise 0.
-int screen_setup();
+int screen_init();
 
 // Returns the address offset in VGA memory to write the next character at.
 int screen_get_cursor_offset();

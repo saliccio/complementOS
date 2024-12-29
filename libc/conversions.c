@@ -1,14 +1,28 @@
 #include "conversions.h"
 #include <array.h>
-#include <d_screen.h>
+#include <memory.h>
+
+int uint_to_str(unsigned int src, char *dest) {
+    short i = 0;
+    do {
+        dest[i++] = '0' + (src % 10);  // ASCII value = ASCII of '0' + digit
+    } while ((src /= 10) > 0);
+
+    // Reverse it
+    reverse(dest, i);
+
+    dest[i] = '\0';
+
+    return i;
+}
 
 int int_to_str(int src, char *dest) {
     bool is_negative = src < 0;
     if (is_negative) {
-        src = -src;  // Absolute value
+        src *= -1;  // Absolute value
     }
     
-    int i = 0;
+    short i = 0;
     do {
         dest[i++] = '0' + (src % 10);  // ASCII value = ASCII of '0' + digit
     } while ((src /= 10) > 0);
@@ -80,4 +94,69 @@ int float_to_str(float src, char *dest) {
     int fractional_part_end_index = int_to_str_truncate_0(fractional_part, dest + int_part_end_index);
 
     return int_part_end_index + fractional_part_end_index;
+}
+
+int udec_to_hex(unsigned int src, char *dest) {
+    if (src == 0) {
+        mem_copy_str("0x0", dest);
+        return 3;
+    }
+
+    short str_index = 0;
+    while (src > 0) {
+        short remainder = src % 16;
+        if (remainder < 10) {
+            dest[str_index] = 48 + remainder;
+        } else {
+            dest[str_index] = 55 + remainder;
+        }
+        src /= 16;
+        str_index++;
+    }
+
+    dest[str_index++] = 'x';
+    dest[str_index++] = '0';
+
+    reverse(dest, str_index);
+
+    dest[str_index] = '\0';
+
+    return str_index;
+}
+
+int dec_to_hex(int src, char *dest) {
+    if (src == 0) {
+        mem_copy_str("0x0", dest);
+        return 3;
+    }
+
+    bool is_negative = src < 0;
+    if (is_negative) {
+        src *= -1;
+    }
+
+    short str_index = 0;
+    while (src > 0) {
+        short remainder = src % 16;
+        if (remainder < 10) {
+            dest[str_index] = 48 + remainder;
+        } else {
+            dest[str_index] = 55 + remainder;
+        }
+        src /= 16;
+        str_index++;
+    }
+
+    dest[str_index++] = 'x';
+    dest[str_index++] = '0';
+
+    if (is_negative) {
+        dest[str_index++] = '-';
+    }
+
+    reverse(dest, str_index);
+
+    dest[str_index] = '\0';
+
+    return str_index;
 }

@@ -1,6 +1,6 @@
 #include "drivers.h"
 
-int drivers_setup() {
-	screen_setup();
+int drivers_init() {
+	screen_init();
 	return 1;
 }

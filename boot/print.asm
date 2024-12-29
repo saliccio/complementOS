@@ -1,14 +1,14 @@
 print:
     pusha
-print_start:
+.start:
     mov al, [bx]
     cmp al, 0
-    je print_done
+    je .finish
     mov ah, 0x0e
     int 0x10
     add bx, 1
-    jmp print_start
-print_done:
+    jmp .start
+.finish:
     popa
     ret
 print_nl:

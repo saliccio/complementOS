@@ -5,7 +5,7 @@
 #include <conversions.h>
 #include <stdarg.h>
 
-int screen_setup() {
+int screen_init() {
 	screen_clear();
 	return 1;
 }
@@ -105,28 +105,34 @@ void printf(const char *format, ...) {
         if (is_in_format_mode) {
             if (c == '%') {  // Process escape %
                 print_char('%', DEFAULT_ATTR_BYTE);
-                is_in_format_mode = false;
             } else if (c == 'c') {  // Process chars
                 int arg = va_arg(args, int);
                 print_char(arg, DEFAULT_ATTR_BYTE);
-                is_in_format_mode = false;
             } else if (c == 'd') {  // Process integers
                 int arg = va_arg(args, int);
                 char int_str[INT_MAX_CHARS_10];
                 int_to_str(arg, int_str);
                 print(int_str);
-                is_in_format_mode = false;
+            } else if (c == 'u') {
+                unsigned int arg = va_arg(args, unsigned int);
+                char int_str[INT_MAX_CHARS_10];
+                uint_to_str(arg, int_str);
+                print(int_str);
             } else if (c == 'f') {  // Process floats
                 double arg = va_arg(args, double);
                 char float_str[FLOAT_MAX_CHARS_10];
                 float_to_str(arg, float_str);
                 print(float_str);
-                is_in_format_mode = false;
             } else if (c == 's') {  // Process strings
                 const char *arg = va_arg(args, const char*);
                 print(arg);
-                is_in_format_mode = false;
+            } else if (c == 'p') {  // Process pointers
+                void *arg = va_arg(args, void*);
+                char address_str[INT_MAX_CHARS_16];
+                udec_to_hex((unsigned int)arg, address_str);
+                print(address_str);
             }
+            is_in_format_mode = false;
         } else if (c == '%') {  // Process format mode entry
             is_in_format_mode = true;
         } else {  // Process regular chars in the format string

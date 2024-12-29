@@ -8,23 +8,23 @@ disk_load:
     mov ch, 0x00
     mov dh, 0x00
     int 0x13      ; BIOS interrupt
-    jc disk_error
+    jc .disk_error
     pop dx
     cmp al, dh
-    jne sectors_error
+    jne .sectors_error
     popa
     ret
-disk_error:
+.disk_error:
     mov bx, DISK_ERROR
     call print
     call print_nl
     mov dh, ah
     call print_hex
-    jmp disk_loop
-sectors_error:
+    jmp .loop
+.sectors_error:
     mov bx, SECTORS_ERROR
     call print
-disk_loop:
+.loop:
     jmp $
 
 DISK_ERROR: db "Disk read error", 0

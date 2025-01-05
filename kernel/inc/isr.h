@@ -1,6 +1,6 @@
 #pragma once
 
-#include <cpu/idt.h>
+#include <idt.h>
 #include <types.h>
 
 #define PIC_MASTER_COMMAND_PORT 0x20

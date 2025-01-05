@@ -1,7 +1,7 @@
 ENTRY(main)
 
-OUTPUT_FORMAT(elf64-x86-64)
-OUTPUT_ARCH(i386:x86-64)
+OUTPUT_FORMAT(binary)
+OUTPUT_ARCH(i386)
 
 KERNEL_VMA = 0xFFFFFFFF80000000;
 KSTACK_SIZE = 32K;
@@ -9,10 +9,8 @@ KHEAP_SIZE = 64K;
 
 SECTIONS
 {
-   . = 1M;
-
-   . += KERNEL_VMA;
-
+   . = 0x200;
+    
     .text ALIGN(4K) : AT(ADDR(.text) - KERNEL_VMA)
     {
         _code = .;

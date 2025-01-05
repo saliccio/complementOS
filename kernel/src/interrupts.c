@@ -1,7 +1,7 @@
 #include "interrupts.h"
-#include <cpu/isr.h>
-#include <cpu/timer.h>
-#include <cpu/io.h>
+#include <isr.h>
+#include <timer.h>
+#include <io.h>
 #include <d_screen.h>
 #include <d_keyboard.h>
 #include <d_mouse.h>

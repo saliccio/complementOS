@@ -1,5 +1,5 @@
 #include "memory.h"
-#include <memory/allocator.h>
+#include <allocator.h>
 
 void mem_copy(const u8 *src_ptr, u8 *dest_ptr, u32 bytes) {
     for (u32 i = 0; i < bytes; i++) {
@@ -24,7 +24,7 @@ void mem_set(u8 *dest_ptr, u8 data, u32 bytes) {
 }
 
 void swap(u8 *ptr1, u8 *ptr2, u32 bytes) {
-    u8 *temp_array1 = malloc(bytes);
+    u8 *temp_array1 = NULL;
     mem_copy(ptr1, temp_array1, bytes);
     mem_copy(ptr2, ptr1, bytes);
     mem_copy(temp_array1, ptr2, bytes);

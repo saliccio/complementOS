@@ -1,6 +1,6 @@
 #include "isr.h"
 #include "idt.h"
-#include <cpu/io.h>
+#include <io.h>
 #include <d_screen.h>
 #include <conversions.h>
 

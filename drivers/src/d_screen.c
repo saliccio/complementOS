@@ -1,5 +1,5 @@
 #include "d_screen.h"
-#include <cpu/io.h>
+#include <io.h>
 #include <memory.h>
 #include <types.h>
 #include <conversions.h>

@@ -9,7 +9,7 @@ I believe that reinventing the wheel is beneficial in many aspects.
 ## Roadmap
 ### General
 - [x] 32-bit protected mode
-- [x] ELF support
+- [ ] ELF support
 ### Booting
 - [x] Custom bootloader (No GRUB)
 ### Drivers

@@ -1,5 +1,5 @@
 #include "d_mouse.h"
-#include <cpu/io.h>
+#include <io.h>
 
 static int current_byte_index = 0;
 static mouse_packet_t current_packet;

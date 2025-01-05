@@ -1,5 +1,6 @@
 #include "array.h"
 #include "memory.h"
+#include "types.h"
 
 void reverse(s8 *arr, int size) {
     for (int i = 0; i < size / 2; i++) {

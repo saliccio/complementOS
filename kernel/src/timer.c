@@ -1,5 +1,5 @@
 #include "timer.h"
-#include <cpu/io.h>
+#include <io.h>
 
 // static callback_hash_map_entry_t[]
 

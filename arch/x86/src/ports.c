@@ -1,4 +1,4 @@
-#include "io.h"
+#include "ports.h"
 
 // Reads 1 byte of data from given I/O port.
 u8 port_read_byte(u16 port) {

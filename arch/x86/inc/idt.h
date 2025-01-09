@@ -29,7 +29,11 @@ typedef struct {
 extern idt_entry_t idt[IDT_NO_OF_ENTRIES];
 extern idt_ptr_t idt_ptr;
 
+// Initializes IDT by setting up entries.
+void idt_init();
+
 // Loads the IDT into the CPU using 'LIDT' instruction.
 void idt_load();
+
 // Assign a routine address to given interrupt number.
 void idt_assign_isr(int interrupt_no, u32 address);

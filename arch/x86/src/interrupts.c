@@ -1,11 +1,12 @@
-#include "interrupts.h"
 #include <isr.h>
-#include <timer.h>
-#include <io.h>
+#include <apicTimer.h>
+#include <ports.h>
 #include <d_screen.h>
 #include <d_keyboard.h>
 #include <d_mouse.h>
 
+/*
+TODO: Move into drivers
 void timer_interrupt() {
     static unsigned int ticks = 0;
     ticks++;
@@ -24,20 +25,10 @@ void keyboard_interrupt() {
         printf(key_str);
     }
 }
+*/
 
-void page_fault_interrupt() {
-    printf("Page Fault");
-}
-
-void interrupt_setup_handlers() {
+void interrupts_enable() {
     timer_init();
-    isr_set_handler(IRQ0, timer_interrupt);
-
-    isr_set_handler(IRQ1, keyboard_interrupt);
-
-    isr_set_handler(IRQ12, mouse_interrupt);
-
-    isr_set_handler(IRQ14, page_fault_interrupt);
 
     __asm__ __volatile__ ("sti");  // Enable interrupts again
 }

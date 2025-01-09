@@ -1,14 +1,13 @@
 #include "drivers.h"
-#include <isr.h>
-#include <interrupts.h>
 #include <allocator.h>
 #include <info.h>
 #include <array.h>
+#include <isr.h>
 
 // Entry point of the kernel
 int main() {
 	idt_init();
-	interrupt_setup_handlers();
+	interrupts_enable();
 
 	drivers_init();
 

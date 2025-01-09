@@ -6,11 +6,12 @@ LD=ld
 QEMU=qemu-system-x86_64
 LD_SETTINGS=linker.ld
 GDB_ADDRESS=localhost:1234
+ARCH=x86
 BIN:=$(shell realpath bin)
 IMAGE:=$(BIN)/image
 KERNEL_ENTRY_BIN:=$(BIN)/kernel/src_kernel_entry.s.o # This binary must come first in the LD's input list.
 LINKED_BIN:=$(BIN)/linked.bin
-MODULES=boot drivers kernel libc
+MODULES=boot arch/$(ARCH) drivers kernel libc
 CINCLUDE:=$(foreach module,$(MODULES),-I$(realpath $(module)/inc))
 
 # -g: Include debug information

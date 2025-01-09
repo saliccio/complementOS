@@ -1,4 +1,4 @@
 include ../common.mk
 
 $(BIN)/boot.bin: src/bootloader.s
-	$(NASM) -Isrc -f bin $< -o $@
+	$(NASM) -Iinc -f bin $< -o $@

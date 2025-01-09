@@ -15,7 +15,7 @@ jmp CODE_SEG:pm_start  ; Initiate a FAR jump to ensure the pipeline flushes (to 
 
 [bits 16]  ; Ensure 16-bit real mode to make BIOS disk interrupt to load the kernel (0x13)
 load_sectors:
-    mov bx, KERNEL_OFFSET  ; Where to load in memory
+    mov bx, [KERNEL_OFFSET]  ; Where to load in memory
     mov dh, 50  ; Sector count
     mov dl, [BOOTING_DRIVE]  ; Drive to boot from
     call disk_load
@@ -36,7 +36,7 @@ pm_start:  ; Entry point for the protected mode
     mov bx, STR_SWITCHED_MODE
     call pm_print
 
-    mov eax, KERNEL_OFFSET
+    mov eax, [KERNEL_OFFSET]
     call eax
 
     jmp $
@@ -49,9 +49,9 @@ pm_start:  ; Entry point for the protected mode
 %include "pm_gdt.s"
 %include "pm_print.s"
 
-KERNEL_OFFSET equ 0x200
-STACK_BASE equ 0x99900
+KERNEL_OFFSET: dd 0x1000
 
+STACK_BASE equ 0x99900
 BOOTING_DRIVE db 0
 STR_SWITCHED_MODE db "Switched to 32-bit mode.", 0
 

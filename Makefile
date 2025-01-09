@@ -6,7 +6,7 @@ LD=ld
 QEMU=qemu-system-x86_64
 LD_SETTINGS=linker.ld
 GDB_ADDRESS=localhost:1234
-BIN:=$(realpath bin)
+BIN:=$(shell realpath bin)
 IMAGE:=$(BIN)/image
 KERNEL_ENTRY_BIN:=$(BIN)/kernel/src_kernel_entry.s.o # This binary must come first in the LD's input list.
 LINKED_BIN:=$(BIN)/linked.bin
@@ -21,12 +21,14 @@ CINCLUDE:=$(foreach module,$(MODULES),-I$(realpath $(module)/inc))
 # -fno-pie: No position independent code (PIE), needed for IA-32
 CFLAGS=-g -m32 -ffreestanding -nostdlib -fno-builtin -nostartfiles -nodefaultlibs -fno-pie -Wall -Werror -Wextra
 
+build_run: all run
+
 # First, clean all possible binaries created before, then create the OS image
 all: clean $(IMAGE)
 
 # Run the OS
-run: $(IMAGE)
-	$(QEMU) -fda $<
+run:
+	$(QEMU) -fda $(IMAGE)
 
 # Create OS image
 $(IMAGE): build_modules
@@ -45,10 +47,6 @@ clean:
 image.dis: $(IMAGE)
 	$(NDISASM) -b 32 $< > $@
 	
-# Disassemble binary (for debugging)
-kernel.dis: $(IMAGE)
-	$(NDISASM) -b 32 $< > $@
-
 # Start QEMU, then GDB to debug
 debug: debug_qemu debug_gdb
 

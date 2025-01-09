@@ -9,7 +9,7 @@ KHEAP_SIZE = 64K;
 
 SECTIONS
 {
-   . = 0x200;
+   . = 0x1000;
     
     .text ALIGN(4K) : AT(ADDR(.text) - KERNEL_VMA)
     {

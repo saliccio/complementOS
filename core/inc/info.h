@@ -14,12 +14,12 @@ typedef enum {
 } mmap_entry_type;
 
 typedef struct {
-	u32 base_address_low;
-	u32 base_address_high;
-	u32 length_low;
-	u32 length_high;
+	u32_ct base_address_low;
+	u32_ct base_address_high;
+	u32_ct length_low;
+	u32_ct length_high;
 	mmap_entry_type type;
-	u32 extended_attributes;
+	u32_ct extended_attributes;
 } __attribute__((packed)) mmap_entry_t;
 
-u32 memory_sanitize_info(mmap_entry_t* dest);
+u32_ct memory_sanitize_info(mmap_entry_t* dest);

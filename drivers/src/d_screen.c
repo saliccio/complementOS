@@ -4,10 +4,11 @@
 #include <types.h>
 #include <libc/conversions.h>
 #include <stdarg.h>
+#include "core/staticHooks.h"
 
-int screen_init() {
+err_code_ct screen_init() {
 	screen_clear();
-	return 1;
+	return NO_ERROR;
 }
 
 int screen_get_cursor_offset() {
@@ -25,25 +26,25 @@ void screen_set_cursor_offset(int offset) {
     offset /= 2;  // convert the offset from address offset to char offset
 
     port_write_byte(SCREEN_CTRL_PORT, 14);
-    port_write_byte(SCREEN_DATA_PORT, (u8)(offset >> 8));  // to write the upper byte, right-shift the given offset by 8 bits
+    port_write_byte(SCREEN_DATA_PORT, (u8_ct)(offset >> 8));  // to write the upper byte, right-shift the given offset by 8 bits
     port_write_byte(SCREEN_CTRL_PORT, 15);
-    port_write_byte(SCREEN_DATA_PORT, (u8)(offset));
+    port_write_byte(SCREEN_DATA_PORT, (u8_ct)(offset));
 }
 
 void screen_scroll_below() {
     // bring all rows back by one
     for (int i = 1; i < MAX_ROWS; i++) {
-        u8 *src_ptr = (u8 *)VIDEO_ADDRESS + 2 * i * MAX_COLS;
-        u8 *dest_ptr = (u8 *)VIDEO_ADDRESS + 2 * (i - 1) * MAX_COLS;
+        u8_ct *src_ptr = (u8_ct *)VIDEO_ADDRESS + 2 * i * MAX_COLS;
+        u8_ct *dest_ptr = (u8_ct *)VIDEO_ADDRESS + 2 * (i - 1) * MAX_COLS;
         mem_copy(src_ptr, dest_ptr, 2 * MAX_COLS);
     }
 
-    u8 *last_row_ptr = (u8 *)VIDEO_ADDRESS + 2 * (MAX_ROWS - 1) * MAX_COLS;  // starting address of the last row
+    u8_ct *last_row_ptr = (u8_ct *)VIDEO_ADDRESS + 2 * (MAX_ROWS - 1) * MAX_COLS;  // starting address of the last row
     mem_set(last_row_ptr, 0, 2 * MAX_COLS);  // clears the last row
 }
 
 void print_char_at(int row, int column, char character, char attribute) {
-	u8 *video_memory_ptr = (u8 *) VIDEO_ADDRESS;
+	u8_ct *video_memory_ptr = (u8_ct *) VIDEO_ADDRESS;
 
     if (attribute == DEFAULT_ATTR_BYTE) {
         attribute = COLOR_DEFAULT;
@@ -100,7 +101,7 @@ void printf(const char *format, ...) {
 
     int i = 0;
     char c;
-    bool is_in_format_mode = false;
+    bool_ct is_in_format_mode = FALSE;
     while ((c = format[i]) != 0) {
         if (is_in_format_mode) {
             if (c == '%') {  // Process escape %
@@ -132,9 +133,9 @@ void printf(const char *format, ...) {
                 udec_to_hex((unsigned int)arg, address_str);
                 print(address_str);
             }
-            is_in_format_mode = false;
+            is_in_format_mode = FALSE;
         } else if (c == '%') {  // Process format mode entry
-            is_in_format_mode = true;
+            is_in_format_mode = TRUE;
         } else {  // Process regular chars in the format string
             print_char(c, DEFAULT_ATTR_BYTE);
         }
@@ -154,3 +155,6 @@ void screen_clear() {
 
     screen_set_cursor_offset(0);
 }
+
+//ATTACH_STATIC_HOOK(CORE_PRE_INIT, screen_init, 100);
+__attribute__((unused)) static int CORE_PRE_INIT_fptr __attribute__((section(".hook_CORE_PRE_INIT_100"))) = 0XDEADBEEF;

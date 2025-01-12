@@ -73,4 +73,4 @@
 #define KEY_MAX_STR_LENGTH 22
 
 // Translates given scancode to the corresponding key's string equivalent, and writes to the pointer 'dest'. Does not support KEYUP events.
-void keyboard_scancode_to_str(u8 scancode, char *dest);
+void keyboard_scancode_to_str(u8_ct scancode, char *dest);

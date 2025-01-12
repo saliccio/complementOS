@@ -4,27 +4,27 @@
 
 #define vector_create(type) \
     typedef struct { \
-        u32 size; \
-        u32 capacity; \
+        u32_ct size; \
+        u32_ct capacity; \
         type* _back_ptr; \
         \
-        bool (*is_empty)(const struct _vector_##type_t*); \
-        u32 (*size)(const struct _vector_##type_t*); \
-        const type (*get)(const struct _vector_##type_t*, u32 index); \
+        bool_ct (*is_empty)(const struct _vector_##type_t*); \
+        u32_ct (*size)(const struct _vector_##type_t*); \
+        const type (*get)(const struct _vector_##type_t*, u32_ct index); \
         void (*push_back)(struct _vector_##type_t*, type); \
     } _vector_##type_t; \
     \
-    bool _vector_is_empty_##type(const _vector_##type_t* vector_ptr) \
+    bool_ct _vector_is_empty_##type(const _vector_##type_t* vector_ptr) \
     { \
         return vector_ptr->_size == 0; \
     } \
     \
-    u32 _vector_size_##type(const _vector_##type_t* vector_ptr) \
+    u32_ct _vector_size_##type(const _vector_##type_t* vector_ptr) \
     { \
         return vector_ptr->_size; \
     } \
     \
-    const type _vector_get_##type(const _vector_##type_t* vector_ptr, u32 index) \
+    const type _vector_get_##type(const _vector_##type_t* vector_ptr, u32_ct index) \
     { \
         return vector_ptr[index]; \
     } \

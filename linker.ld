@@ -9,7 +9,9 @@ KHEAP_SIZE = 64K;
 
 SECTIONS
 {
-   . = 0x1000;
+    . = 0x1000;
+
+    _kernel_start = .;
     
     .text ALIGN(4K) : AT(ADDR(.text) - KERNEL_VMA)
     {
@@ -51,7 +53,21 @@ SECTIONS
         _kheap_end = .;
     }
 
-    kernel_end = .;
+    .hook_CORE_PRE_INIT : AT(ADDR(.hook_CORE_PRE_INIT) - KERNEL_VMA)
+    {
+        _hook_CORE_PRE_INIT_start = .;
+        *SORT(.hook_CORE_PRE_INIT_*)
+        _hook_CORE_PRE_INIT_end = .;
+    }
+
+    .hook_CORE_POST_INIT : AT(ADDR(.hook_CORE_POST_INIT) - KERNEL_VMA)
+    {
+        _hook_CORE_POST_INIT_start = .;
+        *SORT(.hook_CORE_POST_INIT_*)
+        _hook_CORE_POST_INIT_end = .;
+    }
+
+    _kernel_end = .;
 
     /DISCARD/ :
     {

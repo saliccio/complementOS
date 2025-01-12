@@ -1,5 +1,7 @@
 #pragma once
 
+#include "errCodes.h"
+
 // VGA driver implementation (25x80 mode for now)
 
 #define VIDEO_ADDRESS 0xB8000
@@ -13,7 +15,7 @@
 #define SCREEN_DATA_PORT 0x3D5  // address for the port-mapped data register of the screen device
 
 // Sets the driver up. Returns 1 on success, otherwise 0.
-int screen_init();
+err_code_ct screen_init();
 
 // Returns the address offset in VGA memory to write the next character at.
 int screen_get_cursor_offset();

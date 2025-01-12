@@ -10,9 +10,9 @@ ARCH=x86
 CWD:=$(shell pwd)
 BIN:=$(shell realpath bin)
 IMAGE:=$(BIN)/image
-BOOT_ENTRY_BIN:=$(BIN)/$(ARCH)/src_bootEntry.s.o # This binary must come first in the LD's input list.
+BOOT_ENTRY_BIN:=$(BIN)/arch/$(ARCH)_src_bootEntry.s.o # This binary must come first in the LD's input list.
 LINKED_BIN:=$(BIN)/linked.bin
-MODULES=arch drivers kernel libc
+MODULES=arch drivers core libc
 CINCLUDE:=-I$(CWD)/include
 
 # -g: Include debug information
@@ -40,7 +40,7 @@ build_modules:
 	mkdir -p $(BIN)
 	$(foreach module,$(MODULES),mkdir -p $(BIN)/$(module);)
 	$(foreach module,$(MODULES),$(MAKE) -C $(module) CC=$(CC) NASM=$(NASM) ARCH=$(ARCH) BIN=$(BIN)/$(module) CINCLUDE="$(CINCLUDE)" CFLAGS="$(CFLAGS)";)
-	$(LD) -T $(LD_SETTINGS) -o $(LINKED_BIN) $(KERNEL_ENTRY_BIN) $(BIN)/*/*.o
+	$(LD) -T $(LD_SETTINGS) -o $(LINKED_BIN) $(BOOT_ENTRY_BIN) $(BIN)/*/*.o
 
 clean:
 	rm -rf $(BIN)

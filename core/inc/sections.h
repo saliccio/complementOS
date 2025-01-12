@@ -2,4 +2,4 @@
 
 #include <types.h>
 
-extern u32 kernel_end;
+extern u32_ct kernel_end;

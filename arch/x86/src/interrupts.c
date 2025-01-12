@@ -1,4 +1,4 @@
-#include <arch/isr.h>
+#include <idt.h>
 #include <pit.h>
 #include <arch/ports.h>
 #include "archAsm.h"
@@ -14,8 +14,8 @@ void timer_interrupt() {
 }
 
 void keyboard_interrupt() {
-    u8 key_scancode = port_read_byte(KEYBOARD_SCANCODE_PORT);
-    bool is_keyup_event = key_scancode > KEYBOARD_LAST_SCANCODE;
+    u8_ct key_scancode = port_read_byte(KEYBOARD_SCANCODE_PORT);
+    bool_ct is_keyup_event = key_scancode > KEYBOARD_LAST_SCANCODE;
 
     if (!is_keyup_event) {
         char key_str[KEY_MAX_STR_LENGTH];

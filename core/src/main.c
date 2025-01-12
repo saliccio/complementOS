@@ -6,7 +6,7 @@
 
 // Entry point of the kernel
 int main() {
-	idt_init();
+	//idt_init();
 
 	drivers_init();
 

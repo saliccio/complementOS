@@ -17,7 +17,7 @@ int uint_to_str(unsigned int src, char *dest) {
 }
 
 int int_to_str(int src, char *dest) {
-    bool is_negative = src < 0;
+    bool_ct is_negative = src < 0;
     if (is_negative) {
         src *= -1;  // Absolute value
     }
@@ -40,7 +40,7 @@ int int_to_str(int src, char *dest) {
 }
 
 int int_to_str_truncate_0(int src, char *dest) {
-    bool is_negative = src < 0;
+    bool_ct is_negative = src < 0;
     if (is_negative) {
         src = -src;  // Absolute value
     }
@@ -130,7 +130,7 @@ int dec_to_hex(int src, char *dest) {
         return 3;
     }
 
-    bool is_negative = src < 0;
+    bool_ct is_negative = src < 0;
     if (is_negative) {
         src *= -1;
     }

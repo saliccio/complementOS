@@ -7,12 +7,13 @@ QEMU=qemu-system-x86_64
 LD_SETTINGS=linker.ld
 GDB_ADDRESS=localhost:1234
 ARCH=x86
+CWD:=$(shell pwd)
 BIN:=$(shell realpath bin)
 IMAGE:=$(BIN)/image
 KERNEL_ENTRY_BIN:=$(BIN)/kernel/src_kernel_entry.s.o # This binary must come first in the LD's input list.
 LINKED_BIN:=$(BIN)/linked.bin
-MODULES=boot arch/$(ARCH) drivers kernel libc
-CINCLUDE:=$(foreach module,$(MODULES),-I$(realpath $(module)/inc))
+MODULES=boot arch drivers kernel libc
+CINCLUDE:=-I$(CWD)/include
 
 # -g: Include debug information
 # -m32: Compile for IA-32
@@ -38,7 +39,7 @@ $(IMAGE): build_modules
 build_modules:
 	mkdir -p $(BIN)
 	$(foreach module,$(MODULES),mkdir -p $(BIN)/$(module);)
-	$(foreach module,$(MODULES),$(MAKE) -C $(module) CC=$(CC) NASM=$(NASM) BIN=$(BIN)/$(module) CINCLUDE="$(CINCLUDE)" CFLAGS="$(CFLAGS)";)
+	$(foreach module,$(MODULES),$(MAKE) -C $(module) CC=$(CC) NASM=$(NASM) ARCH=$(ARCH) BIN=$(BIN)/$(module) CINCLUDE="$(CINCLUDE)" CFLAGS="$(CFLAGS)";)
 	$(LD) -T $(LD_SETTINGS) -o $(LINKED_BIN) $(KERNEL_ENTRY_BIN) $(BIN)/*/*.o
 
 clean:

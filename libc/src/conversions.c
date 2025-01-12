@@ -1,6 +1,6 @@
-#include "conversions.h"
-#include <array.h>
-#include <memory.h>
+#include "libc/conversions.h"
+#include <libc/array.h>
+#include <libc/memory.h>
 
 int uint_to_str(unsigned int src, char *dest) {
     short i = 0;

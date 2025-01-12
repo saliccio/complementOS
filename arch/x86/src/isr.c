@@ -1,8 +1,7 @@
-#include "isr.h"
-#include "idt.h"
-#include <ports.h>
-#include <d_screen.h>
-#include <conversions.h>
+#include "arch/isr.h"
+#include "arch/idt.h"
+#include <arch/ports.h>
+#include <libc/conversions.h>
 
 static isr_handler_t isr_handlers[IDT_NO_OF_ENTRIES];
 

@@ -1,6 +1,7 @@
-#include "idt.h"
-#include "isr.h"
+#include "arch/idt.h"
+#include "arch/isr.h"
 #include "gdt.h"
+#include "arch/ports.h"
 #include <types.h>
 
 static idt_entry_t idt[IDT_NO_OF_ENTRIES];

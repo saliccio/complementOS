@@ -1,4 +1,4 @@
-[extern isr_general_handler]  ; isr.c
+[extern exc_general_handler]  ; isr.c
 [extern irq_general_handler]  ; isr.c
 
 ; Housekeeping routine for exception routines

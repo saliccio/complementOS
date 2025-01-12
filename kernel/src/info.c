@@ -1,5 +1,5 @@
 #include "info.h"
-#include <array.h>
+#include <libc/array.h>
 
 bool compare_mmap_entries(const void* ptr1, const void* ptr2) {
     mmap_entry_t* entry1_ptr = (mmap_entry_t*)ptr1;

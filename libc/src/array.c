@@ -1,5 +1,5 @@
-#include "array.h"
-#include "memory.h"
+#include "libc/array.h"
+#include "libc/memory.h"
 #include "types.h"
 
 void reverse(s8 *arr, int size) {

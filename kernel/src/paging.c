@@ -1,5 +1,5 @@
 #include "paging.h"
-#include <d_screen.h>
+#include <drivers/d_screen.h>
 
 static u32 next_available_indexes[PAGE_DIRECTORY_SIZE - 1];  // Next available entry addresses for each page table
 static u32 page_directory[PAGE_DIRECTORY_SIZE] __attribute__((aligned(4096)));

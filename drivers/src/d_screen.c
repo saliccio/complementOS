@@ -1,8 +1,8 @@
-#include "d_screen.h"
-#include <ports.h>
-#include <memory.h>
+#include "drivers/d_screen.h"
+#include <arch/ports.h>
+#include <libc/memory.h>
 #include <types.h>
-#include <conversions.h>
+#include <libc/conversions.h>
 #include <stdarg.h>
 
 int screen_init() {

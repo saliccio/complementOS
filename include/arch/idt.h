@@ -26,9 +26,6 @@ typedef struct {
 	u32 base;  // Starting address of the IDT
 } __attribute__((packed)) idt_ptr_t;  // Avoid padding
 
-extern idt_entry_t idt[IDT_NO_OF_ENTRIES];
-extern idt_ptr_t idt_ptr;
-
 // Initializes IDT by setting up entries.
 void idt_init();
 

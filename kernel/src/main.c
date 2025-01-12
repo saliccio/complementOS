@@ -1,8 +1,8 @@
 #include "drivers.h"
 #include <allocator.h>
 #include <info.h>
-#include <array.h>
-#include <isr.h>
+#include <libc/array.h>
+#include <arch/isr.h>
 
 // Entry point of the kernel
 int main() {

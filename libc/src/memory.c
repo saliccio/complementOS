@@ -1,5 +1,4 @@
-#include "memory.h"
-#include <allocator.h>
+#include "libc/memory.h"
 
 void mem_copy(const u8 *src_ptr, u8 *dest_ptr, u32 bytes) {
     for (u32 i = 0; i < bytes; i++) {

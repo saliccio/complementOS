@@ -1,9 +1,6 @@
-#include <isr.h>
-#include <apicTimer.h>
-#include <ports.h>
-#include <d_screen.h>
-#include <d_keyboard.h>
-#include <d_mouse.h>
+#include <arch/isr.h>
+#include <pit.h>
+#include <arch/ports.h>
 
 /*
 TODO: Move into drivers
@@ -28,7 +25,7 @@ void keyboard_interrupt() {
 */
 
 void interrupts_enable() {
-    timer_init();
+    pit_init();
 
     __asm__ __volatile__ ("sti");  // Enable interrupts again
 }

@@ -1,6 +1,7 @@
 #include <arch/isr.h>
 #include <pit.h>
 #include <arch/ports.h>
+#include "archAsm.h"
 
 /*
 TODO: Move into drivers
@@ -24,8 +25,8 @@ void keyboard_interrupt() {
 }
 */
 
-void interrupts_enable() {
-    pit_init();
+void interrupts_init() {
+    idt_init();
 
-    __asm__ __volatile__ ("sti");  // Enable interrupts again
+    ASM("sti");  // Enable interrupts again
 }

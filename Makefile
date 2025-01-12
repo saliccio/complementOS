@@ -10,9 +10,9 @@ ARCH=x86
 CWD:=$(shell pwd)
 BIN:=$(shell realpath bin)
 IMAGE:=$(BIN)/image
-KERNEL_ENTRY_BIN:=$(BIN)/kernel/src_kernel_entry.s.o # This binary must come first in the LD's input list.
+BOOT_ENTRY_BIN:=$(BIN)/$(ARCH)/src_bootEntry.s.o # This binary must come first in the LD's input list.
 LINKED_BIN:=$(BIN)/linked.bin
-MODULES=boot arch drivers kernel libc
+MODULES=arch drivers kernel libc
 CINCLUDE:=-I$(CWD)/include
 
 # -g: Include debug information

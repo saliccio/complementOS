@@ -11,4 +11,4 @@ $(BIN)/%.s.o: $(BASE_PATH)/src/%.s
 
 # Generic - C code to object file
 $(BIN)/%.c.o: $(BASE_PATH)/src/%.c
-	$(CC) $(CINCLUDE) -I$(BASE_PATH)/inc $(CFLAGS) -c $< -o $(BIN)/$(MANGLED_OUTPUT_NAME)
+	$(CC) $(CINCLUDE) -I$(BASE_PATH)/inc -Iinc $(CFLAGS) -c $< -o $(BIN)/$(MANGLED_OUTPUT_NAME)

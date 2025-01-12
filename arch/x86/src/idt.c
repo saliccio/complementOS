@@ -2,6 +2,7 @@
 #include "arch/isr.h"
 #include "gdt.h"
 #include "arch/ports.h"
+#include "archAsm.h"
 #include <types.h>
 
 static idt_entry_t idt[IDT_NO_OF_ENTRIES];
@@ -85,5 +86,5 @@ void idt_load() {
 	idt_ptr.limit = sizeof(idt_entry_t) * IDT_NO_OF_ENTRIES - 1;
 	idt_ptr.base = (u32) &idt;
 	
-	__asm__ __volatile__("lidt (%0)" : : "r" (&idt_ptr));  // disable any compiler optimizations by marking it volatile
+	ASM("lidt (%0)" : : "r" (&idt_ptr));  // disable any compiler optimizations by marking it volatile
 }

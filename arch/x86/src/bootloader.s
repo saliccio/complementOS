@@ -43,11 +43,11 @@ pm_start:  ; Entry point for the protected mode
 
 
 %include "print.s"
-%include "print_hex.s"
-%include "read_disk.s"
-;%include "get_memory_info.s"
-%include "pm_gdt.s"
-%include "pm_print.s"
+%include "printHex.s"
+%include "readDisk.s"
+;%include "getMemoryInfo.s"
+%include "pmGdt.s"
+%include "pmPrint.s"
 
 KERNEL_OFFSET: dd 0x1000
 

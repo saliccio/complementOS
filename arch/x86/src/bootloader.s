@@ -33,9 +33,6 @@ pm_start:  ; Entry point for the protected mode
     mov gs, ax
     mov ss, ax	; Make all segment registers point to the data segment description address (no actual segmentation will be used)
 
-    mov bx, STR_SWITCHED_MODE
-    call pm_print
-
     mov eax, [KERNEL_OFFSET]
     call eax
 
@@ -47,13 +44,11 @@ pm_start:  ; Entry point for the protected mode
 %include "readDisk.s"
 ;%include "getMemoryInfo.s"
 %include "pmGdt.s"
-%include "pmPrint.s"
 
 KERNEL_OFFSET: dd 0x1000
 
 STACK_BASE equ 0x99900
 BOOTING_DRIVE db 0
-STR_SWITCHED_MODE db "Switched to 32-bit mode.", 0
 
 times 510-($-$$)	db 0  ; padding
 dw	0xaa55  ; valid boot indicator

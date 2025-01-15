@@ -1,5 +1,7 @@
 [bits 32]  ; using 32-bit protected mode
 
+global pm_print
+
 VIDEO_MEM_ADDRESS equ 0xb8000
 COLOR_WHITE equ 0x0f
 

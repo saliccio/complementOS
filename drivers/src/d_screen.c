@@ -6,11 +6,6 @@
 #include <stdarg.h>
 #include "core/staticHooks.h"
 
-err_code_ct screen_init() {
-	screen_clear();
-	return NO_ERROR;
-}
-
 int screen_get_cursor_offset() {
     // register 14: high byte of cursor offset
     // register 15: low byte of cursor offset
@@ -20,6 +15,11 @@ int screen_get_cursor_offset() {
     cursor_offset += port_read_byte(SCREEN_DATA_PORT);  // read the low byte
     cursor_offset *= 2;  // each character in VGA is 2 bytes, so multiply it by two (convert it from char offset to address offset)
     return cursor_offset;
+}
+
+err_code_ct screen_init() {
+	screen_clear();
+	return NO_ERROR;
 }
 
 void screen_set_cursor_offset(int offset) {
@@ -156,5 +156,4 @@ void screen_clear() {
     screen_set_cursor_offset(0);
 }
 
-//ATTACH_STATIC_HOOK(CORE_PRE_INIT, screen_init, 100);
-__attribute__((unused)) static int CORE_PRE_INIT_fptr __attribute__((section(".hook_CORE_PRE_INIT_100"))) = 0XDEADBEEF;
+ATTACH_STATIC_HOOK(CORE_PRE_INIT, screen_init, 100);

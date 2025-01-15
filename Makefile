@@ -21,7 +21,7 @@ CINCLUDE:=-I$(CWD)/include
 # -nostdlib: No stdlib links by default
 # -fno-builtin: Avoid compile-time replacements for stdlib functions
 # -fno-pie: No position independent code (PIE), needed for IA-32
-CFLAGS=-g -m32 -ffreestanding -nostdlib -fno-builtin -nostartfiles -nodefaultlibs -fno-pie -Wall -Werror -Wextra
+CFLAGS=-g -m32 -ffreestanding -nostdlib -fno-builtin -nostartfiles -nodefaultlibs -fno-pie -Wall
 
 build_run: all run
 

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "types.h"
-#include "errCodes.h"
 #include "core/staticHooks.h"
+#include "errCodes.h"
+#include "types.h"
 
 extern addr_ct _hook_CORE_PRE_INIT_start;
 extern addr_ct _hook_CORE_PRE_INIT_end;

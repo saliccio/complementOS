@@ -9,10 +9,10 @@
 #define MAX_COLS 80
 #define COLOR_DEFAULT 0x0F
 
-#define DEFAULT_ATTR_BYTE 0x0  // default color is white
+#define DEFAULT_ATTR_BYTE 0x0 // default color is white
 
-#define SCREEN_CTRL_PORT 0x3D4  // address for the port-mapped control register of the screen device
-#define SCREEN_DATA_PORT 0x3D5  // address for the port-mapped data register of the screen device
+#define SCREEN_CTRL_PORT 0x3D4 // address for the port-mapped control register of the screen device
+#define SCREEN_DATA_PORT 0x3D5 // address for the port-mapped data register of the screen device
 
 // Sets the driver up. Returns 1 on success, otherwise 0.
 err_code_ct screen_init();
@@ -34,10 +34,10 @@ void print_char_at(int row, int column, char character, char attribute);
 void print_char(char character, char attribute);
 
 // Prints the given string, starts at the given row and column.
-void print_at(int row, int column, const char* string);
+void print_at(int row, int column, const char *string);
 
 // Prints the given string, starts at the cursor position.
-void print(const char* string);
+void print(const char *string);
 
 // Prints considering given format and ordered parameters.
 void printf(const char *format, ...);

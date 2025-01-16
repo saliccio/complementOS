@@ -66,11 +66,12 @@
 #define KEYBOARD_LAST_SCANCODE KEY_KEYPAD_SPACE
 
 // Key up event scancode = key scancode + 0x80
-#define KEY_UP(key) key+0x80
+#define KEY_UP(key) key + 0x80
 
 #define KEYBOARD_SCANCODE_PORT 0x60
 
 #define KEY_MAX_STR_LENGTH 22
 
-// Translates given scancode to the corresponding key's string equivalent, and writes to the pointer 'dest'. Does not support KEYUP events.
+// Translates given scancode to the corresponding key's string equivalent, and writes to the pointer 'dest'. Does not
+// support KEYUP events.
 void keyboard_scancode_to_str(u8_ct scancode, char *dest);

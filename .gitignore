@@ -4,4 +4,4 @@ cmd.txt
 *.bin
 image
 .vscode/
-image.dis
+*.dis

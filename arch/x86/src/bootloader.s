@@ -5,14 +5,6 @@ mov esp, ebp  ; Move the stack pointer to an appropriate place
 
 ;call get_memory_info
 
-call load_sectors
-
-lgdt [gdt_descriptor]	; Load GDT (Global Descriptor Table) into the CPU
-mov eax, cr0
-or eax, 1
-mov cr0, eax  ; Switch to the 32-bit protected mode
-jmp CODE_SEG:pm_start  ; Initiate a FAR jump to ensure the pipeline flushes (to avoid problems that may arise when executing 16-bit instructions left in the pipeline)
-
 [bits 16]  ; Ensure 16-bit real mode to make BIOS disk interrupt to load the kernel (0x13)
 load_sectors:
     mov bx, [KERNEL_OFFSET]  ; Where to load in memory
@@ -20,7 +12,14 @@ load_sectors:
     mov dl, [BOOTING_DRIVE]  ; Drive to boot from
     call disk_load
 
-    ret
+call a20_enable
+
+switch_to_pm:
+    lgdt [gdt_descriptor]	; Load GDT (Global Descriptor Table) into the CPU
+    mov eax, cr0
+    or eax, 1
+    mov cr0, eax  ; Switch to the 32-bit protected mode
+    jmp CODE_SEG:pm_start  ; Initiate a FAR jump to ensure the pipeline flushes (to avoid problems that may arise when executing 16-bit instructions left in the pipeline)
 
 [bits 32]  ; Ensure assembler to from now on, encode the instructions for 32-bit protected mode
 pm_start:  ; Entry point for the protected mode
@@ -42,6 +41,7 @@ pm_start:  ; Entry point for the protected mode
 %include "print.s"
 %include "printHex.s"
 %include "readDisk.s"
+%include "a20.s"
 ;%include "getMemoryInfo.s"
 %include "pmGdt.s"
 

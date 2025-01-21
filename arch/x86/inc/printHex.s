@@ -1,3 +1,5 @@
+[bits 16]
+
 print_hex:
     pusha
     mov cx, 0

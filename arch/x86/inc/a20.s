@@ -1,4 +1,5 @@
 [bits 16]
+
 a20_enable:
     pusha
 
@@ -30,4 +31,4 @@ a20_enable:
     popa
     ret
 
-ACTIVATING_A20_FAILED: db "Could not activate A20 bus line.", 0
+ACTIVATING_A20_FAILED: db " line.", 0

@@ -10,7 +10,6 @@ ARCH=x86
 CWD:=$(shell pwd)
 BIN:=$(shell realpath bin)
 IMAGE:=$(BIN)/image
-BOOT_ENTRY_BIN:=$(BIN)/arch/$(ARCH)_src_bootEntry.s.o # This binary must come first in the LD's input list.
 LINKED_BIN:=$(BIN)/linked.bin
 MODULES=arch drivers core libc
 CINCLUDE:=-I$(CWD)/include
@@ -21,7 +20,7 @@ CINCLUDE:=-I$(CWD)/include
 # -nostdlib: No stdlib links by default
 # -fno-builtin: Avoid compile-time replacements for stdlib functions
 # -fno-pie: No position independent code (PIE), needed for IA-32
-CFLAGS=-g -m32 -ffreestanding -nostdlib -fno-builtin -nostartfiles -nodefaultlibs -fno-pie -Wall
+CFLAGS=-g -m64 -ffreestanding -nostdlib -fno-builtin -nostartfiles -nodefaultlibs -Wall
 
 build_run: all run
 
@@ -30,7 +29,7 @@ all: clean $(IMAGE)
 
 # Run the OS
 run:
-	$(QEMU) -fda $(IMAGE)
+	$(QEMU) -fda $(IMAGE) -monitor stdio -s
 
 # Create OS image
 $(IMAGE): build_modules
@@ -40,14 +39,14 @@ build_modules:
 	mkdir -p $(BIN)
 	$(foreach module,$(MODULES),mkdir -p $(BIN)/$(module);)
 	$(foreach module,$(MODULES),$(MAKE) -C $(module) CC=$(CC) NASM=$(NASM) ARCH=$(ARCH) BIN=$(BIN)/$(module) CINCLUDE="$(CINCLUDE)" CFLAGS="$(CFLAGS)";)
-	$(LD) -T $(LD_SETTINGS) -o $(LINKED_BIN) $(BOOT_ENTRY_BIN) $(BIN)/*/*.o
+	$(LD) -T $(LD_SETTINGS) -o $(LINKED_BIN) $(BIN)/*/*.o
 
 clean:
 	rm -rf $(BIN)
 
 # Disassemble OS image (for debugging)
 image.dis: $(IMAGE)
-	$(NDISASM) -b 32 $< > $@
+	$(NDISASM) -b 64 $< > $@
 	
 # Start QEMU, then GDB to debug
 debug: debug_qemu debug_gdb

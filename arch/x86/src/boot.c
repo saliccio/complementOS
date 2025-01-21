@@ -1,25 +1,21 @@
 #include "archAsm.h"
 #include "core/init.h"
 #include "idt.h"
+#include "paging.h"
 
-/**
- * Defined in pmPrint.s
- */
-extern void pm_print();
-
-void boot_print(char *message)
+__attribute__((section(".text.start"), used)) void boot_main()
 {
-    __asm__("mov %0, %%ebx" : : "r"(message) : "ebx");
-    pm_print();
-}
-
-void boot_main()
-{
-    boot_print("Switched to 32-bit mode.");
-
     idt_init();
 
+    while (1)
+    {
+        /* Temporary barrier */
+    }
+
     ASM("sti"); // Enable interrupts again
+
+    char k = 'A';
+    printf(&k);
 
     core_entry();
 }

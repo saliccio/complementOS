@@ -4,12 +4,20 @@
 ; Housekeeping routine for exception routines
 exc_housekeeping:
     ; 1. Save current CPU state
-	pusha  ; Pushes edi, esi, ebp, esp, ebx, edx, ecx, eax
+	push rdi
+	push rsi
+	push rbp
+	push rsp
+	push rbx
+	push rdx
+	push rcx
+	push rax
+
 	mov ax, ds  ; Lower 16-bits of eax = ds.
-	push eax  ; Save current data segment entry offset
+	push rax  ; Save current data segment entry offset
 	
     ; Make all segment registers to point at kernel data segment. This is done to switch to the kernel mode.
-    mov ax, 0x10  ; Kernel data segment entry offset (boot/pm_gdt.asm)
+    mov ax, 0x20  ; Kernel data segment entry offset (gdt.asm)
 	mov ds, ax
 	mov es, ax
 	mov fs, ax
@@ -19,37 +27,51 @@ exc_housekeeping:
 	call exc_general_handler
 	
     ; 3. Restore state
-	pop eax 
+	pop rax
 	mov ds, ax
 	mov es, ax
 	mov fs, ax
 	mov gs, ax
-	popa
-	add esp, 8 ; Cleans up the pushed error code and pushed exception number
+	
+	pop rax
+	pop rcx
+	pop rdx
+	pop rbx
+	pop rsp
+	pop rbp
+	pop rsi
+	pop rdi
+	
+    add esp, 8 ; Cleans up the pushed error code and pushed exception number
 	sti
-	iret ; Pops cs, eip, eflags, ss, esp
+	iretq ; Pops cs, eip, eflags, ss, esp
 
 irq_housekeeping:
-    pusha 
+	push rdi
+	push rsi
+	push rbp
+	push rsp
+	push rbx
+	push rdx
+	push rcx
+	push rax
+
     mov ax, ds
-    push eax
-    mov ax, 0x10
-    mov ds, ax
-    mov es, ax
-    mov fs, ax
-    mov gs, ax
 
     call irq_general_handler
 
-    pop ebx
-    mov ds, bx
-    mov es, bx
-    mov fs, bx
-    mov gs, bx
-    popa
+	pop rax
+	pop rcx
+	pop rdx
+	pop rbx
+	pop rsp
+	pop rbp
+	pop rsi
+	pop rdi
+
     add esp, 8
     sti
-    iret
+    iretq
 	
 global _exc0
 global _exc1

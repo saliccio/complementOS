@@ -7,7 +7,7 @@ MANGLED_OUTPUT_NAME=$(shell echo $(subst /,_,$^)).o
 
 # Generic - Assembly code to object file
 $(BIN)/%.s.o: $(BASE_PATH)/src/%.s
-	$(NASM) -f elf $^ -o $(BIN)/$(MANGLED_OUTPUT_NAME)
+	$(NASM) -f elf64 $^ -o $(BIN)/$(MANGLED_OUTPUT_NAME)
 
 # Generic - C code to object file
 $(BIN)/%.c.o: $(BASE_PATH)/src/%.c

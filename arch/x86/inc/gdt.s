@@ -17,6 +17,10 @@ gdt_start:  ; GDT begins here
     ; Data Segment Descriptor for Long Mode (64-bit) (0x20)
     dq 0x00af920000000000  ; Base = 0x0, Limit ignored, Data, Read/Write
 
+    ; Task State Segment (TSS) Descriptor (0x28 and 0x30)
+    ; dq 0x0000000000000000  ; Lower 8 bytes of TSS descriptor
+    ; dq 0x0000000000000000  ; Upper 8 bytes of TSS descriptor
+
 gdt_end:  ; GDT ends here
 
 gdt_pointer:

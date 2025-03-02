@@ -10,11 +10,11 @@ int screen_get_cursor_offset()
 {
     // register 14: high byte of cursor offset
     // register 15: low byte of cursor offset
-    port_write_byte(SCREEN_CTRL_PORT, 14);                     // first, select register 14
-    int cursor_offset = port_read_byte(SCREEN_DATA_PORT) << 8; // read the high byte and left-shift by 8 bits
+    PORT_WRITE_BYTE(SCREEN_CTRL_PORT, 14);                     // first, select register 14
+    int cursor_offset = PORT_READ_BYTE(SCREEN_DATA_PORT) << 8; // read the high byte and left-shift by 8 bits
                                                                // (since high byte is read)
-    port_write_byte(SCREEN_CTRL_PORT, 15);                     // then, select register 15
-    cursor_offset += port_read_byte(SCREEN_DATA_PORT);         // read the low byte
+    PORT_WRITE_BYTE(SCREEN_CTRL_PORT, 15);                     // then, select register 15
+    cursor_offset += PORT_READ_BYTE(SCREEN_DATA_PORT);         // read the low byte
     cursor_offset *= 2; // each character in VGA is 2 bytes, so multiply it by two
                         // (convert it from char offset to address offset)
     return cursor_offset;
@@ -30,12 +30,12 @@ void screen_set_cursor_offset(int offset)
 {
     offset /= 2; // convert the offset from address offset to char offset
 
-    port_write_byte(SCREEN_CTRL_PORT, 14);
-    port_write_byte(SCREEN_DATA_PORT,
+    PORT_WRITE_BYTE(SCREEN_CTRL_PORT, 14);
+    PORT_WRITE_BYTE(SCREEN_DATA_PORT,
                     (u8_ct)(offset >> 8)); // to write the upper byte, right-shift
                                            // the given offset by 8 bits
-    port_write_byte(SCREEN_CTRL_PORT, 15);
-    port_write_byte(SCREEN_DATA_PORT, (u8_ct)(offset));
+    PORT_WRITE_BYTE(SCREEN_CTRL_PORT, 15);
+    PORT_WRITE_BYTE(SCREEN_DATA_PORT, (u8_ct)(offset));
 }
 
 void screen_scroll_below()

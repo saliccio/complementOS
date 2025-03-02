@@ -9,23 +9,23 @@ KHEAP_SIZE = 64K;
 
 SECTIONS
 {
-    . = 0x8000;
+    . = 0x10000;
 
     . += KERNEL_VMA;
 
     _kernel_start = .;
     
-    .text ALIGN(4K) : AT(ADDR(.text) - KERNEL_VMA)
+    .text : AT(ADDR(.text) - KERNEL_VMA)
     {
         _code = .;
         *(.text.start)
+        *(.idt)
         *(.text)
         *(.rodata*)
-        . = ALIGN(4K);
         _code_end = .;
     }
 
-    .data ALIGN(4K) : AT(ADDR(.data) - KERNEL_VMA)
+    .data : AT(ADDR(.data) - KERNEL_VMA)
     {
         _data = .;
         *(.data)
@@ -38,27 +38,25 @@ SECTIONS
         KEEP(SORT(*)(.hook_CORE_POST_INIT_*))
         _hook_CORE_POST_INIT_end = .;
 
-        . = ALIGN(4K);
         _data_end = .;
     }
 
-    .bss ALIGN(4K) : AT(ADDR(.bss) - KERNEL_VMA)
+    .bss : AT(ADDR(.bss) - KERNEL_VMA)
     {
         _bss = .;
         *(COMMON)
         *(.bss)
-        . = ALIGN(4K);
         _bss_end = .;
     }
 
-    .kstack ALIGN(4K) : AT(ADDR(.kstack) - KERNEL_VMA)
+    .kstack : AT(ADDR(.kstack) - KERNEL_VMA)
     {
         _kstack_start = .;
         . += KSTACK_SIZE;
         _kstack_end = .;
     }
 
-    .kheap ALIGN(4K) : AT(ADDR(.kheap) - KERNEL_VMA)
+    .kheap : AT(ADDR(.kheap) - KERNEL_VMA)
     {
         _kheap_start = .;
         . += KHEAP_SIZE;

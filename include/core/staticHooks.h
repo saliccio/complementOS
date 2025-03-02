@@ -17,3 +17,5 @@ typedef static_hook_0_arg_func_ct CORE_POST_INIT_func_ct;
 #define ATTACH_STATIC_HOOK(hook_point, function, priority)                                                             \
     __attribute__((unused)) static CONCAT_2(hook_point, _func_ct) CONCAT_2(hook_point, _fptr)                          \
         __attribute__((section(STRINGIFY(.hook_##hook_point##_##priority)))) = function;
+
+err_code_ct call_static_hook_functions(static_hook_ct hook_point);

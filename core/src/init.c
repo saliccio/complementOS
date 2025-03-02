@@ -1,5 +1,6 @@
 #include "core/init.h"
-#include "staticHooks.h"
+#include "core/staticHooks.h"
+#include "drivers/d_screen.h"
 
 void core_entry()
 {

@@ -1,4 +1,11 @@
-#include "staticHooks.h"
+#include "core/staticHooks.h"
+#include "types.h"
+
+extern addr_ct _hook_CORE_PRE_INIT_start;
+extern addr_ct _hook_CORE_PRE_INIT_end;
+
+extern addr_ct _hook_CORE_POST_INIT_start;
+extern addr_ct _hook_CORE_POST_INIT_end;
 
 static addr_ct func_addresses[NUM_OF_STATIC_HOOKS][2] = {{&_hook_CORE_PRE_INIT_start, &_hook_CORE_PRE_INIT_end},
                                                          {&_hook_CORE_POST_INIT_start, &_hook_CORE_POST_INIT_end}};
@@ -6,7 +13,7 @@ static addr_ct func_addresses[NUM_OF_STATIC_HOOKS][2] = {{&_hook_CORE_PRE_INIT_s
 err_code_ct call_static_hook_functions(static_hook_ct hook_point)
 {
     err_code_ct ret = NO_ERROR;
-    const static_hook_0_arg_func_ct *start_address = (static_hook_0_arg_func_ct *)func_addresses[hook_point][0];
+    const static_hook_0_arg_func_ct start_address = (static_hook_0_arg_func_ct *)func_addresses[hook_point][0];
     static_hook_0_arg_func_ct *curr_address = ((static_hook_0_arg_func_ct *)func_addresses[hook_point][1]) - 1;
 
     while (start_address <= curr_address)

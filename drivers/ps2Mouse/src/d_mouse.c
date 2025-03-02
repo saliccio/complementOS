@@ -5,7 +5,7 @@
 
 void mouse_interrupt()
 {
-    // current_packet.bytes[current_byte_index] = port_read_byte(MOUSE_DATA_PORT);
+    // current_packet.bytes[current_byte_index] = PORT_READ_BYTE(MOUSE_DATA_PORT);
     // current_byte_index = (current_byte_index + 1) % MOUSE_PACKET_BYTES;
 }
 

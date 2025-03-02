@@ -1,3 +1,4 @@
+[bits 64]
 [extern exc_general_handler]  ; isr.c
 [extern irq_general_handler]  ; isr.c
 

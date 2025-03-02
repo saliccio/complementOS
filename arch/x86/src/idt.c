@@ -1,13 +1,13 @@
 #include "idt.h"
+#include "arch/asm.h"
 #include "arch/ports.h"
-#include "archAsm.h"
 #include "bits.h"
 #include "gdt.h"
 #include "pic.h"
 #include <types.h>
 
-static idt_entry_t idt[IDT_NO_OF_ENTRIES];
-static idt_ptr_t idt_ptr;
+static idt_entry_t idt[IDT_NO_OF_ENTRIES] __attribute__((section(".idt")));
+static idt_ptr_t idt_ptr __attribute__((section(".idt")));
 
 static void idt_assign_isr(int interrupt_no, u64_ct address, u8_ct flags)
 {
@@ -23,7 +23,7 @@ static void idt_assign_isr(int interrupt_no, u64_ct address, u8_ct flags)
 static void idt_load()
 {
     idt_ptr.limit = sizeof(idt_entry_t) * IDT_NO_OF_ENTRIES - 1;
-    idt_ptr.base = (u64_ct)&idt;
+    idt_ptr.base = (u64_ct)idt;
 
     ASM("lidt (%0)"
         :
@@ -65,32 +65,31 @@ void idt_init()
     idt_assign_isr(EXC29, (u64_ct)_exc29, EXC_FLAGS);
     idt_assign_isr(EXC30, (u64_ct)_exc30, EXC_FLAGS);
     idt_assign_isr(EXC31, (u64_ct)_exc31, EXC_FLAGS);
-
     // Remapping of Intel 8259 Programmable Interrupt Controller in cascade mode
     // (for IRQs 0-7, remap from 0x8-0xF to 0x20-0x27 to avoid conflicts with
     // ISRs) (for IRQs 8-15, remap from 0x70-0x77 to 0x28-0x2F to ensure
     // sequentiality)
-    port_write_byte(PIC_MASTER_COMMAND_PORT,
+    PORT_WRITE_BYTE(PIC_MASTER_COMMAND_PORT,
                     PIC_INIT_COMMAND); // Initialize master PIC
-    port_write_byte(PIC_SLAVE_COMMAND_PORT,
+    PORT_WRITE_BYTE(PIC_SLAVE_COMMAND_PORT,
                     PIC_INIT_COMMAND); // Initialize slave PIC
-    port_write_byte(PIC_MASTER_DATA_PORT,
+    PORT_WRITE_BYTE(PIC_MASTER_DATA_PORT,
                     PIC_MASTER_VECTOR_OFFSET); // Remap IRQs 0-7
-    port_write_byte(PIC_SLAVE_DATA_PORT,
+    PORT_WRITE_BYTE(PIC_SLAVE_DATA_PORT,
                     PIC_SLAVE_VECTOR_OFFSET); // Remap IRQs 8-15
-    port_write_byte(PIC_MASTER_DATA_PORT,
+    PORT_WRITE_BYTE(PIC_MASTER_DATA_PORT,
                     PIC_SLAVE_IRQ_NO); // Tell master PIC which IRQ input the
                                        // slave PIC resides at
-    port_write_byte(PIC_SLAVE_DATA_PORT,
+    PORT_WRITE_BYTE(PIC_SLAVE_DATA_PORT,
                     PIC_SLAVE_CASCADE_IDENTITY); // Tell Slave PIC its cascade identity
-    port_write_byte(PIC_MASTER_DATA_PORT,
+    PORT_WRITE_BYTE(PIC_MASTER_DATA_PORT,
                     PIC_8086_MODE); // Make master PIC use 8086 mode
-    port_write_byte(PIC_SLAVE_DATA_PORT,
+    PORT_WRITE_BYTE(PIC_SLAVE_DATA_PORT,
                     PIC_8086_MODE); // Make slave PIC use 8086 mode
-    port_write_byte(PIC_MASTER_DATA_PORT,
-                    0x0); // Reset interrupt masks for master PIC
-    port_write_byte(PIC_SLAVE_DATA_PORT,
-                    0x0); // Reset interrupt masks for slave PIC
+    PORT_WRITE_BYTE(PIC_MASTER_DATA_PORT,
+                    0xFFFFFFFFFFFFFFFF); // Reset interrupt masks for master PIC
+    PORT_WRITE_BYTE(PIC_SLAVE_DATA_PORT,
+                    0xFFFFFFFFFFFFFFFF); // Reset interrupt masks for slave PIC
 
     idt_assign_isr(IRQ0, (u64_ct)_irq0, IRQ_FLAGS);
     idt_assign_isr(IRQ1, (u64_ct)_irq1, IRQ_FLAGS);

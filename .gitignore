@@ -5,3 +5,6 @@ cmd.txt
 image
 .vscode/
 *.dis
+bochs_log.txt
+qemu_log.txt
+dump

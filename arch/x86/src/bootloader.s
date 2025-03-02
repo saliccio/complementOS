@@ -5,14 +5,11 @@ mov ebp, STACK_BASE
 mov esp, ebp  ; Move the stack pointer to an appropriate place
 
 ;call get_memory_info
-
 [bits 16]  ; Ensure 16-bit real mode to make BIOS disk interrupt to load the kernel (0x13)
 load_sectors:
     mov ax, [KERNEL_PHYSICAL_ADDRESS_SEGMENT]
     mov es, ax
     mov bx, 0
-    mov dh, 12  ; Sector count
-    mov dl, 0  ; Drive to boot from
     call disk_load
 
 call a20_enable  ; Enable A20 line of the memory bus
@@ -35,24 +32,22 @@ pm_start:  ; Entry point for the protected mode
     mov fs, ax
     mov gs, ax
     mov ss, ax	; Make all segment registers point to the data segment description address (no actual segmentation will be used)
-
     jmp enable_long_mode
-
-%include "longMode.s"
 
 [bits 64]
 call_main:
     mov rax, [KERNEL_VIRTUAL_ADDRESS]
     jmp rax
     
+%include "longMode.s"
 %include "readDisk.s"
 %include "print.s"
 %include "printHex.s"
 %include "a20.s"
 %include "gdt.s"
 
-KERNEL_PHYSICAL_ADDRESS_SEGMENT dw 0x800
-KERNEL_VIRTUAL_ADDRESS dq 0xFFFFFF8000008000
+KERNEL_PHYSICAL_ADDRESS_SEGMENT dw 0x1000
+KERNEL_VIRTUAL_ADDRESS dq 0xFFFFFF8000010000
 
 STACK_BASE equ 0x99900
 

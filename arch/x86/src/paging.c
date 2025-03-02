@@ -1,6 +1,6 @@
 /*
 #include "paging.h"
-#include "archAsm.h"
+#include "asm.h"
 
 #define TABLE_SECTION_ATTRIBUTE __attribute__((section(".init_tables")))
 

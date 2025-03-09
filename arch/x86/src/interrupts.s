@@ -14,11 +14,12 @@ exc_housekeeping:
 	push rcx
 	push rax
 
+    xor rax, rax
 	mov ax, ds  ; Lower 16-bits of eax = ds.
 	push rax  ; Save current data segment entry offset
 	
     ; Make all segment registers to point at kernel data segment. This is done to switch to the kernel mode.
-    mov ax, 0x20  ; Kernel data segment entry offset (gdt.asm)
+    mov ax, 0x20  ; Kernel data segment entry offset (gdt.s)
 	mov ds, ax
 	mov es, ax
 	mov fs, ax
@@ -26,7 +27,6 @@ exc_housekeeping:
 	
     ; 2. Call C general handler
 	call exc_general_handler
-	
     ; 3. Restore state
 	pop rax
 	mov ds, ax
@@ -43,8 +43,8 @@ exc_housekeeping:
 	pop rsi
 	pop rdi
 	
-    add esp, 8 ; Cleans up the pushed error code and pushed exception number
-	sti
+    add esp, 16 ; Cleans up the pushed error code and pushed exception number
+    sti
 	iretq ; Pops cs, eip, eflags, ss, esp
 
 irq_housekeeping:

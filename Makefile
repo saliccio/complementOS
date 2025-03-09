@@ -21,12 +21,12 @@ MODULES=arch drivers core libc
 CINCLUDE:=-I$(CWD)/include
 
 # -g: Include debug information
-# -m32: Compile for IA-32
+# -m64: Compile for 64 bits
 # -ffreestanding: No standard library
 # -nostdlib: No stdlib links by default
 # -fno-builtin: Avoid compile-time replacements for stdlib functions
-# -fno-pie: No position independent code (PIE), needed for IA-32
-CFLAGS=-g -m64 -ffreestanding -nostdlib -fno-builtin -nostartfiles -nodefaultlibs -Wall
+# -fno-pie: No position independent code (PIE)
+CFLAGS=-g -m64 -ffreestanding -nostdlib -fno-builtin -nostartfiles -nodefaultlibs -fno-pic -mcmodel=large -Wall
 
 build_run_qemu: all run_qemu
 build_run_bochs: all run_bochs

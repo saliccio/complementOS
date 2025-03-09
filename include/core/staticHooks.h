@@ -5,14 +5,18 @@
 
 typedef enum static_hook
 {
-    CORE_PRE_INIT,
-    CORE_POST_INIT,
+    BOOT_START,
+    CORE_INIT_START,
+    CORE_INIT_END,
+    BOOT_END,
     NUM_OF_STATIC_HOOKS
 } static_hook_ct;
 
 typedef err_code_ct (*static_hook_0_arg_func_ct)();
-typedef static_hook_0_arg_func_ct CORE_PRE_INIT_func_ct;
-typedef static_hook_0_arg_func_ct CORE_POST_INIT_func_ct;
+typedef static_hook_0_arg_func_ct BOOT_START_func_ct;
+typedef static_hook_0_arg_func_ct CORE_INIT_START_func_ct;
+typedef static_hook_0_arg_func_ct CORE_INIT_END_func_ct;
+typedef static_hook_0_arg_func_ct BOOT_END_func_ct;
 
 #define ATTACH_STATIC_HOOK(hook_point, function, priority)                                                             \
     __attribute__((unused)) static CONCAT_2(hook_point, _func_ct) CONCAT_2(hook_point, _fptr)                          \

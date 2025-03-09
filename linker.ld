@@ -19,7 +19,6 @@ SECTIONS
     {
         _code = .;
         *(.text.start)
-        *(.idt)
         *(.text)
         *(.rodata*)
         _code_end = .;
@@ -30,13 +29,21 @@ SECTIONS
         _data = .;
         *(.data)
 
-        _hook_CORE_PRE_INIT_start = .;
-        KEEP(SORT(*)(.hook_CORE_PRE_INIT_*))
-        _hook_CORE_PRE_INIT_end = .;
+        _hook_BOOT_START_start = .;
+        KEEP(SORT(*)(.hook_BOOT_START_*))
+        _hook_BOOT_START_end = .;
 
-        _hook_CORE_POST_INIT_start = .;
-        KEEP(SORT(*)(.hook_CORE_POST_INIT_*))
-        _hook_CORE_POST_INIT_end = .;
+        _hook_CORE_INIT_START_start = .;
+        KEEP(SORT(*)(.hook_CORE_INIT_START_*))
+        _hook_CORE_INIT_START_end = .;
+
+        _hook_CORE_INIT_END_start = .;
+        KEEP(SORT(*)(.hook_CORE_INIT_END_*))
+        _hook_CORE_INIT_END_end = .;
+
+        _hook_BOOT_END_start = .;
+        KEEP(SORT(*)(.hook_BOOT_END_*))
+        _hook_BOOT_END_end = .;
 
         _data_end = .;
     }

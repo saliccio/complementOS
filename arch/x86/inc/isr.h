@@ -36,7 +36,7 @@
 #define EXC31 31
 #define EXCVEC_PAGEFAULT 14
 
-// Low-level exception handler entries (defined in interrupts.asm)
+// Low-level exception handler entries
 extern void _exc0();
 extern void _exc1();
 extern void _exc2();

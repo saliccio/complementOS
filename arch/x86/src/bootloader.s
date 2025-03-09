@@ -1,6 +1,8 @@
 [bits 16]
 [org 0x7c00]  ; bootloader memory offset
 
+cli	 ; Temporarily disable interrupts until an IDT (interrupt descriptor table) for protected mode is set-up
+
 mov ebp, STACK_BASE
 mov esp, ebp  ; Move the stack pointer to an appropriate place
 
@@ -24,7 +26,6 @@ switch_to_pm:
 
 [bits 32]  ; Ensure assembler to from now on, encode the instructions for 32-bit protected mode
 pm_start:  ; Entry point for the protected mode
-    cli	 ; Temporarily disable interrupts until an IDT (interrupt descriptor table) for protected mode is set-up
 
     mov ax, 0x10
     mov ds, ax

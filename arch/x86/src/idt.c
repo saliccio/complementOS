@@ -6,8 +6,8 @@
 #include "pic.h"
 #include <types.h>
 
-static idt_entry_t idt[IDT_NO_OF_ENTRIES] __attribute__((section(".idt")));
-static idt_ptr_t idt_ptr __attribute__((section(".idt")));
+static idt_entry_t idt[IDT_NO_OF_ENTRIES];
+static idt_ptr_t idt_ptr;
 
 static void idt_assign_isr(int interrupt_no, u64_ct address, u8_ct flags)
 {
@@ -87,9 +87,9 @@ void idt_init()
     PORT_WRITE_BYTE(PIC_SLAVE_DATA_PORT,
                     PIC_8086_MODE); // Make slave PIC use 8086 mode
     PORT_WRITE_BYTE(PIC_MASTER_DATA_PORT,
-                    0xFFFFFFFFFFFFFFFF); // Reset interrupt masks for master PIC
+                    0x0); // Reset interrupt masks for master PIC
     PORT_WRITE_BYTE(PIC_SLAVE_DATA_PORT,
-                    0xFFFFFFFFFFFFFFFF); // Reset interrupt masks for slave PIC
+                    0x0); // Reset interrupt masks for slave PIC
 
     idt_assign_isr(IRQ0, (u64_ct)_irq0, IRQ_FLAGS);
     idt_assign_isr(IRQ1, (u64_ct)_irq1, IRQ_FLAGS);

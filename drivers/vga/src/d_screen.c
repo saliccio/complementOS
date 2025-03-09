@@ -1,12 +1,13 @@
 #include "drivers/d_screen.h"
 #include "core/staticHooks.h"
+#include "vga.h"
 #include <arch/ports.h>
 #include <libc/conversions.h>
 #include <libc/memory.h>
 #include <stdarg.h>
 #include <types.h>
 
-int screen_get_cursor_offset()
+static int screen_get_cursor_offset()
 {
     // register 14: high byte of cursor offset
     // register 15: low byte of cursor offset
@@ -20,13 +21,13 @@ int screen_get_cursor_offset()
     return cursor_offset;
 }
 
-err_code_ct screen_init()
+static err_code_ct screen_init()
 {
-    screen_clear();
+    vga_screen_clear();
     return NO_ERROR;
 }
 
-void screen_set_cursor_offset(int offset)
+static void screen_set_cursor_offset(int offset)
 {
     offset /= 2; // convert the offset from address offset to char offset
 
@@ -38,7 +39,7 @@ void screen_set_cursor_offset(int offset)
     PORT_WRITE_BYTE(SCREEN_DATA_PORT, (u8_ct)(offset));
 }
 
-void screen_scroll_below()
+static void screen_scroll_below()
 {
     // bring all rows back by one
     for (int i = 1; i < MAX_ROWS; i++)
@@ -52,7 +53,7 @@ void screen_scroll_below()
     mem_set(last_row_ptr, 0, 2 * MAX_COLS);                                       // clears the last row
 }
 
-void print_char_at(int row, int column, char character, char attribute)
+static void print_char_at(int row, int column, char character, char attribute)
 {
     u8_ct *video_memory_ptr = (u8_ct *)VIDEO_ADDRESS;
 
@@ -96,12 +97,12 @@ void print_char_at(int row, int column, char character, char attribute)
     screen_set_cursor_offset(offset);
 }
 
-void print_char(char character, char attribute)
+static void print_char(char character, char attribute)
 {
     print_char_at(-1, -1, character, attribute);
 }
 
-void print_at(int row, int column, const char *string)
+static void print_at(int row, int column, const char *string)
 {
     if (row >= 0 && column >= 0)
     { // update the cursor position if row and column are valid
@@ -116,12 +117,12 @@ void print_at(int row, int column, const char *string)
     }
 }
 
-void print(const char *string)
+void vga_print(const char *string)
 {
     print_at(-1, -1, string);
 }
 
-void printf(const char *format, ...)
+void vga_printf(const char *format, ...)
 {
     va_list args;
     va_start(args, format);
@@ -147,33 +148,33 @@ void printf(const char *format, ...)
                 int arg = va_arg(args, int);
                 char int_str[INT_MAX_CHARS_10];
                 int_to_str(arg, int_str);
-                print(int_str);
+                vga_print(int_str);
             }
             else if (c == 'u')
             {
                 unsigned int arg = va_arg(args, unsigned int);
                 char int_str[INT_MAX_CHARS_10];
                 uint_to_str(arg, int_str);
-                print(int_str);
+                vga_print(int_str);
             }
             else if (c == 'f')
             { // Process floats
                 double arg = va_arg(args, double);
                 char float_str[FLOAT_MAX_CHARS_10];
                 float_to_str(arg, float_str);
-                print(float_str);
+                vga_print(float_str);
             }
             else if (c == 's')
             { // Process strings
                 const char *arg = va_arg(args, const char *);
-                print(arg);
+                vga_print(arg);
             }
             else if (c == 'p')
             { // Process pointers
                 void *arg = va_arg(args, void *);
                 char address_str[INT_MAX_CHARS_16];
-                udec_to_hex((unsigned int)arg, address_str);
-                print(address_str);
+                udec_to_hex((unsigned long)arg, address_str);
+                vga_print(address_str);
             }
             is_in_format_mode = FALSE;
         }
@@ -191,7 +192,7 @@ void printf(const char *format, ...)
     va_end(args);
 }
 
-void screen_clear()
+void vga_screen_clear()
 {
     int row, column;
     for (row = 0; row < MAX_ROWS; row++)
@@ -205,4 +206,4 @@ void screen_clear()
     screen_set_cursor_offset(0);
 }
 
-ATTACH_STATIC_HOOK(CORE_PRE_INIT, screen_init, 100);
+ATTACH_STATIC_HOOK(BOOT_START, screen_init, 100);

@@ -1,3 +1,5 @@
+; First sector start
+
 [bits 16]
 [org 0x7c00]  ; bootloader memory offset
 
@@ -6,33 +8,33 @@ cli	 ; Temporarily disable interrupts until an IDT (interrupt descriptor table) 
 mov ebp, STACK_BASE
 mov esp, ebp  ; Move the stack pointer to an appropriate place
 
-;call get_memory_info
-[bits 16]  ; Ensure 16-bit real mode to make BIOS disk interrupt to load the kernel (0x13)
-load_sectors:
-    mov ax, [KERNEL_PHYSICAL_ADDRESS_SEGMENT]
-    mov es, ax
-    mov bx, 0
-    call disk_load
-
+call disk_load   ; Load sectors from the disk
 call a20_enable  ; Enable A20 line of the memory bus
+call switch_to_pm
 
+[bits 16]
+mov ax, 0
+mov es, ax
+call 0x08:fill_page_tables
+jmp pm_start  ; Initiate a FAR jump to ensure the pipeline flushes (to avoid problems that may arise when executing 16-bit instructions left in the pipeline)
+
+[bits 16]
 switch_to_pm:
     lgdt [gdt_pointer]	; Load GDT (Global Descriptor Table) into the CPU
     mov eax, cr0
     or eax, 1
     mov cr0, eax  ; Switch to the 32-bit protected mode
+    ret
 
-    jmp 0x08:pm_start  ; Initiate a FAR jump to ensure the pipeline flushes (to avoid problems that may arise when executing 16-bit instructions left in the pipeline)
-
-[bits 32]  ; Ensure assembler to from now on, encode the instructions for 32-bit protected mode
+[bits 32]
 pm_start:  ; Entry point for the protected mode
-
     mov ax, 0x10
     mov ds, ax
     mov es, ax
     mov fs, ax
     mov gs, ax
     mov ss, ax	; Make all segment registers point to the data segment description address (no actual segmentation will be used)
+
     jmp enable_long_mode
 
 [bits 64]
@@ -40,19 +42,32 @@ call_main:
     mov rax, [KERNEL_VIRTUAL_ADDRESS]
     jmp rax
     
-%include "longMode.s"
 %include "readDisk.s"
+%include "longMode.s"
 %include "print.s"
-%include "printHex.s"
 %include "a20.s"
 %include "gdt.s"
+%include "paging.s"
 
+AP_CODE_SEGMENT dw 0x7e0
 KERNEL_PHYSICAL_ADDRESS_SEGMENT dw 0x1000
 KERNEL_VIRTUAL_ADDRESS dq 0xFFFFFF8000010000
-
 STACK_BASE equ 0x99900
 
-times 510-($-$$)	db 0  ; padding
+times 510-($-$$) db 0  ; padding
 dw	0xaa55  ; valid boot indicator
 
-; %include "getMemoryInfo.s"
+; Second sector start
+
+[bits 16]
+ap_start:
+    cli
+
+    mov ebp, STACK_BASE
+    mov esp, ebp
+
+    call switch_to_pm
+
+    jmp 0x08:pm_start
+
+times 512-($ - ap_start) db 0  ; padding

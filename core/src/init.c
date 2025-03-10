@@ -6,7 +6,7 @@ void core_entry()
 {
     call_static_hook_functions(CORE_INIT_START);
 
-    // vga_printf("Welcome to complementOS!\n");
+    vga_printf("Welcome to complementOS!\n");
 
     call_static_hook_functions(CORE_INIT_END);
 }

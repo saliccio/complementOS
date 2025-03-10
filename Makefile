@@ -38,7 +38,7 @@ all: clean $(IMAGE)
 run_qemu:
 	$(QEMU_IMG) create -f raw $(DISK) $(DISK_SIZE)
 	$(DD) if=$(IMAGE) of=$(DISK) conv=notrunc
-	$(QEMU) -drive format=raw,file=$(DISK),if=ide -boot a -monitor stdio -s
+	$(QEMU) -drive format=raw,file=$(DISK),if=ide -boot a -monitor stdio -s -smp cores=4
 
 # Run the OS via Bochs
 run_bochs:

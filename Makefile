@@ -10,6 +10,7 @@ BX_IMG=bximage
 LD_SETTINGS=linker.ld
 GDB_ADDRESS=localhost:1234
 ARCH=x86
+CORE_COUNT=4
 CWD:=$(shell pwd)
 BIN:=$(shell realpath bin)
 DISK:=$(BIN)/disk.img
@@ -26,7 +27,7 @@ CINCLUDE:=-I$(CWD)/include
 # -nostdlib: No stdlib links by default
 # -fno-builtin: Avoid compile-time replacements for stdlib functions
 # -fno-pie: No position independent code (PIE)
-CFLAGS=-g -m64 -ffreestanding -nostdlib -fno-builtin -nostartfiles -nodefaultlibs -fno-pic -mcmodel=large -Wall
+CFLAGS=-g -m64 -ffreestanding -nostdlib -fno-builtin -nostartfiles -nodefaultlibs -fno-pic -mcmodel=large -Wall -DCORE_COUNT=$(CORE_COUNT)
 
 build_run_qemu: all run_qemu
 build_run_bochs: all run_bochs
@@ -38,7 +39,7 @@ all: clean $(IMAGE)
 run_qemu:
 	$(QEMU_IMG) create -f raw $(DISK) $(DISK_SIZE)
 	$(DD) if=$(IMAGE) of=$(DISK) conv=notrunc
-	$(QEMU) -drive format=raw,file=$(DISK),if=ide -boot a -monitor stdio -s -smp cores=4
+	$(QEMU) -drive format=raw,file=$(DISK),if=ide -boot a -monitor stdio -s -smp cores=$(CORE_COUNT)
 
 # Run the OS via Bochs
 run_bochs:
@@ -53,7 +54,7 @@ $(IMAGE): build_modules
 build_modules:
 	mkdir -p $(BIN)
 	$(foreach module,$(MODULES),mkdir -p $(BIN)/$(module);)
-	$(foreach module,$(MODULES),$(MAKE) -C $(module) CC=$(CC) NASM=$(NASM) ARCH=$(ARCH) BIN=$(BIN)/$(module) CINCLUDE="$(CINCLUDE)" CFLAGS="$(CFLAGS)";)
+	$(foreach module,$(MODULES),$(MAKE) -C $(module) CC=$(CC) NASM=$(NASM) ARCH=$(ARCH) CORE_COUNT=$(CORE_COUNT) BIN=$(BIN)/$(module) CINCLUDE="$(CINCLUDE)" CFLAGS="$(CFLAGS)";)
 	$(LD) -T $(LD_SETTINGS) -o $(LINKED_BIN) $(BIN)/*/*.o
 
 clean:

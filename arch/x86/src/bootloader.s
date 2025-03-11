@@ -15,8 +15,8 @@ call switch_to_pm
 [bits 16]
 mov ax, 0
 mov es, ax
-call 0x08:fill_page_tables
-jmp pm_start  ; Initiate a FAR jump to ensure the pipeline flushes (to avoid problems that may arise when executing 16-bit instructions left in the pipeline)
+call 0x08:fill_page_tables  ; Initiate a FAR jump to ensure the pipeline flushes (to avoid problems that may arise when executing 16-bit instructions left in the pipeline)
+jmp pm_start
 
 [bits 16]
 switch_to_pm:
@@ -49,7 +49,7 @@ call_main:
 %include "gdt.s"
 %include "paging.s"
 
-AP_CODE_SEGMENT dw 0x7e0
+AP_CODE_SEGMENT dw 0x800
 KERNEL_PHYSICAL_ADDRESS_SEGMENT dw 0x1000
 KERNEL_VIRTUAL_ADDRESS dq 0xFFFFFF8000010000
 STACK_BASE equ 0x99900
@@ -66,7 +66,10 @@ ap_start:
     mov ebp, STACK_BASE
     mov esp, ebp
 
-    call switch_to_pm
+    lgdt [gdt_pointer]	; Load GDT (Global Descriptor Table) into the CPU
+    mov eax, cr0
+    or eax, 1
+    mov cr0, eax  ; Switch to the 32-bit protected mode
 
     jmp 0x08:pm_start
 

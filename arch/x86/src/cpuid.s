@@ -15,3 +15,10 @@ cpuid_is_supported_asm:
     and rax, 0x00200000                 ; rax = zero if ID bit can't be changed, else non-zero
     shr rax, 21                         ; Right-shift 21 times to make the return value 1 if rax is non-zero
     ret
+
+cpuid_get_lapic_id_asm:
+    mov rax, 1
+    cpuid
+    shr rbx, 24
+    mov rax, rbx
+    ret

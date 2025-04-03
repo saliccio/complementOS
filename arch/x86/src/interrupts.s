@@ -13,27 +13,11 @@ exc_housekeeping:
 	push rdx
 	push rcx
 	push rax
-
-    xor rax, rax
-	mov ax, ds  ; Lower 16-bits of eax = ds.
-	push rax  ; Save current data segment entry offset
-	
-    ; Make all segment registers to point at kernel data segment. This is done to switch to the kernel mode.
-    mov ax, 0x20  ; Kernel data segment entry offset (gdt.s)
-	mov ds, ax
-	mov es, ax
-	mov fs, ax
-	mov gs, ax
 	
     ; 2. Call C general handler
 	call exc_general_handler
+
     ; 3. Restore state
-	pop rax
-	mov ds, ax
-	mov es, ax
-	mov fs, ax
-	mov gs, ax
-	
 	pop rax
 	pop rcx
 	pop rdx

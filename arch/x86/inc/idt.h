@@ -6,6 +6,9 @@
 #define EXC_FLAGS 0x8E
 #define IRQ_FLAGS 0x8E
 
+// PIT interrupts are disabled, PIT works with polling
+#define MASTER_IRQ_MASK (1 << INTVEC_TIMER)
+
 // Interrupt descriptor table (IDT)
 
 // Struct for an entry in IDT

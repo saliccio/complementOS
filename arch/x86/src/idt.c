@@ -65,6 +65,7 @@ void idt_init()
     idt_assign_isr(EXC29, (u64_ct)_exc29, EXC_FLAGS);
     idt_assign_isr(EXC30, (u64_ct)_exc30, EXC_FLAGS);
     idt_assign_isr(EXC31, (u64_ct)_exc31, EXC_FLAGS);
+
     // Remapping of Intel 8259 Programmable Interrupt Controller in cascade mode
     // (for IRQs 0-7, remap from 0x8-0xF to 0x20-0x27 to avoid conflicts with
     // ISRs) (for IRQs 8-15, remap from 0x70-0x77 to 0x28-0x2F to ensure

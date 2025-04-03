@@ -19,7 +19,10 @@ DD:=dd
 IMAGE:=$(BIN)/image
 LINKED_BIN:=$(BIN)/linked.bin
 MODULES=arch drivers core libc
+TEST_MODULE=tests
 CINCLUDE:=-I$(CWD)/include
+TEST_DIRS=$(CWD)/include $(foreach mod, $(MODULES), $(wildcard $(CWD)/$(mod)/inc $(CWD)/$(mod)/*/inc))
+TEST_CINCLUDE=$(patsubst %, -I%, $(TEST_DIRS))
 
 # -g: Include debug information
 # -m64: Compile for 64 bits
@@ -30,10 +33,16 @@ CINCLUDE:=-I$(CWD)/include
 CFLAGS=-g -m64 -ffreestanding -nostdlib -fno-builtin -nostartfiles -nodefaultlibs -fno-pic -mcmodel=large -Wall -DCORE_COUNT=$(CORE_COUNT)
 
 build_run_qemu: all run_qemu
+build_run_tests_qemu: test run_qemu
+
 build_run_bochs: all run_bochs
+build_run_tests_bochs: test run_bochs
+
+# Test build mode
+test: clean build_modules_in_test_mode $(IMAGE)
 
 # First, clean all possible binaries created before, then create the OS image
-all: clean $(IMAGE)
+all: clean build_modules $(IMAGE)
 
 # Run the OS via QEMU
 run_qemu:
@@ -48,14 +57,18 @@ run_bochs:
 	$(BOCHS)
 
 # Create OS image
-$(IMAGE): build_modules
+$(IMAGE):
+	$(LD) -T $(LD_SETTINGS) -o $(LINKED_BIN) $(BIN)/*/*.o
 	cat $(wildcard $(BIN)/*/*.bin) $(LINKED_BIN) > $@
 
 build_modules:
 	mkdir -p $(BIN)
 	$(foreach module,$(MODULES),mkdir -p $(BIN)/$(module);)
 	$(foreach module,$(MODULES),$(MAKE) -C $(module) CC=$(CC) NASM=$(NASM) ARCH=$(ARCH) CORE_COUNT=$(CORE_COUNT) BIN=$(BIN)/$(module) CINCLUDE="$(CINCLUDE)" CFLAGS="$(CFLAGS)";)
-	$(LD) -T $(LD_SETTINGS) -o $(LINKED_BIN) $(BIN)/*/*.o
+
+build_modules_in_test_mode: build_modules
+	mkdir -p $(BIN)/$(TEST_MODULE);
+	$(MAKE) -C $(TEST_MODULE) CC=$(CC) NASM=$(NASM) ARCH=$(ARCH) CORE_COUNT=$(CORE_COUNT) BIN=$(BIN)/$(TEST_MODULE) CINCLUDE="$(TEST_CINCLUDE)" CFLAGS="$(CFLAGS)"
 
 clean:
 	rm -rf $(BIN)

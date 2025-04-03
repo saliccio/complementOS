@@ -13,8 +13,6 @@ call a20_enable  ; Enable A20 line of the memory bus
 call switch_to_pm
 
 [bits 16]
-mov ax, 0
-mov es, ax
 call 0x08:fill_page_tables  ; Initiate a FAR jump to ensure the pipeline flushes (to avoid problems that may arise when executing 16-bit instructions left in the pipeline)
 jmp pm_start
 
@@ -39,6 +37,13 @@ pm_start:  ; Entry point for the protected mode
 
 [bits 64]
 call_main:
+    mov ax, 0x20
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+    mov ss, ax
+
     mov rax, [KERNEL_VIRTUAL_ADDRESS]
     jmp rax
     
@@ -49,8 +54,8 @@ call_main:
 %include "gdt.s"
 %include "paging.s"
 
-AP_CODE_SEGMENT dw 0x800
-KERNEL_PHYSICAL_ADDRESS_SEGMENT dw 0x1000
+AP_CODE_SEGMENT equ 0x800
+KERNEL_PHYSICAL_ADDRESS_SEGMENT equ 0x1000
 KERNEL_VIRTUAL_ADDRESS dq 0xFFFFFF8000010000
 STACK_BASE equ 0x99900
 

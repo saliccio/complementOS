@@ -2,9 +2,12 @@
 
 #include "types.h"
 
-#define LAPIC_ICR_LOW 0x300
-#define LAPIC_ICR_HIGH 0x310
+typedef enum ipi_destination
+{
+    NO_SHORTHAND = 0,
+    SELF = 1,
+    ALL_INCLUDING_SELF = 2,
+    ALL_EXCLUDING_SELF = 3
+} ipi_destination_ct;
 
-void lapic_write(u32_ct reg, u32_ct value);
-
-u32_ct lapic_read(u32_ct reg);
+void lapic_start_aps();

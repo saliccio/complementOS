@@ -31,4 +31,4 @@ a20_enable:
     popa
     ret
 
-ACTIVATING_A20_FAILED: db "Could not activate A20 line.", 0
+ACTIVATING_A20_FAILED: db "A20 failed", 0

@@ -16,7 +16,7 @@ load_ap_code:
     mov cx, 0x2                                ; Start from sector 2 (Skip sector 1)
     mov dh, 0x00                               ; Start at Head 0
 
-    mov ax, [AP_CODE_SEGMENT]                  ; Give AP code segment
+    mov ax, AP_CODE_SEGMENT                    ; Give AP code segment
     mov es, ax                                 ; Move it to the segment register
     mov bx, 0                                  ; Set offset to 0  
 
@@ -28,7 +28,7 @@ load_ap_code:
     mov cx, 0x3                                ; Increment sector
     mov dx, 0x80                               ; Ensure clean value after BIOS interrupt
 
-    mov ax, [KERNEL_PHYSICAL_ADDRESS_SEGMENT]  ; Give kernel code segment
+    mov ax, KERNEL_PHYSICAL_ADDRESS_SEGMENT    ; Give kernel code segment
     mov es, ax                                 ; Move it to the segment register
 
 next_sector:
@@ -78,4 +78,4 @@ read_error:
     call print
     jmp $                                      ; Stop execution
 
-DISK_ERROR: db "Disk read error!", 0
+DISK_ERROR: db "Disk error", 0

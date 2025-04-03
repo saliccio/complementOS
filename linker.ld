@@ -5,7 +5,7 @@ OUTPUT_ARCH(i386:x86-64)
 
 KERNEL_VMA = 0xFFFFFF8000000000;
 KSTACK_SIZE = 32K;
-KHEAP_SIZE = 64K;
+KHEAP_SIZE = 1M;
 
 SECTIONS
 {
@@ -63,7 +63,7 @@ SECTIONS
         _kstack_end = .;
     }
 
-    .kheap : AT(ADDR(.kheap) - KERNEL_VMA)
+    .kheap : AT(ADDR(.kheap) - KERNEL_VMA) ALIGN(1M)
     {
         _kheap_start = .;
         . += KHEAP_SIZE;

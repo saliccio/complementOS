@@ -88,3 +88,5 @@ extern void _irq15();
 
 // General ISR handler function. Called from interrupts.asm, and the parameter is pulled from the stack.
 void isr_general_handler(isr_registers_t registers);
+
+void isr_set_handler(u8_ct int_no, isr_handler_t handler);

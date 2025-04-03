@@ -17,3 +17,4 @@ typedef char s8_ct;
 typedef unsigned long ulong_ct;
 typedef long slong_ct;
 typedef void *addr_ct;
+typedef ulong_ct size_ct;

@@ -17,3 +17,8 @@ void kfree(addr_ct addr)
 {
     buddy_free(&kheap_pool, addr);
 }
+
+size_ct kheap_get_free_space()
+{
+    return buddy_get_free_space(&kheap_pool);
+}

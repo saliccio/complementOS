@@ -2,10 +2,6 @@
 
 #include "types.h"
 
-#define FFIT_MIN_BLOCK_SIZE (sizeof(firstfit_block_header_ct) * 2)
-
-typedef size_ct firstfit_block_header_ct;
-
 typedef struct firstfit_block
 {
     size_ct size;
@@ -13,9 +9,17 @@ typedef struct firstfit_block
     struct firstfit_block *next_block;
 } firstfit_block_ct;
 
+typedef struct firstfit_alloc_info
+{
+    size_ct size;
+    addr_ct start;
+    struct firstfit_alloc_info *next;
+} firstfit_alloc_info_ct;
+
 typedef struct firstfit_pool
 {
     firstfit_block_ct *first_block;
+    firstfit_alloc_info_ct *first_alloc_info;
 } firstfit_pool_ct;
 
 void firstfit_init(firstfit_pool_ct *pool);

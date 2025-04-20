@@ -10,20 +10,21 @@
 static buddy_pool_ct buddy_pool;
 
 // Use kernel heap
-static addr_ct memory_pool = &_kheap_start;
+static addr_ct memory_pool_start = &_kheap_start;
+static addr_ct memory_pool_end = &_kheap_end;
 
-void test_buddy_1()
+bool_ct test_buddy_1()
 {
     TEST_START();
 
-    bool_ct ret = buddy_init(&buddy_pool, memory_pool);
+    bool_ct ret = buddy_init(&buddy_pool, memory_pool_start);
     TEST_ASSERT(ret, "ret=%d", ret);
     TEST_ASSERT(buddy_pool.total_used == 0, "total_used=%d", buddy_pool.total_used);
 
     TEST_PASS("Buddy system initialization handled correctly.");
 }
 
-void test_buddy_2()
+bool_ct test_buddy_2()
 {
     TEST_START();
 
@@ -48,7 +49,7 @@ void test_buddy_2()
     TEST_PASS("Buddy allocation and free handled correctly.");
 }
 
-void test_buddy_3()
+bool_ct test_buddy_3()
 {
     TEST_START();
 
@@ -65,7 +66,7 @@ void test_buddy_3()
     TEST_PASS("Fragmentation case handled correctly.");
 }
 
-void test_buddy_4()
+bool_ct test_buddy_4()
 {
     TEST_START();
 
@@ -88,7 +89,7 @@ void test_buddy_4()
     TEST_PASS("Buddy merging case handled correctly.");
 }
 
-void test_buddy_5()
+bool_ct test_buddy_5()
 {
     TEST_START();
 
@@ -98,7 +99,7 @@ void test_buddy_5()
     TEST_PASS("Out-of-memory case handled correctly.");
 }
 
-void test_buddy_6()
+bool_ct test_buddy_6()
 {
     TEST_START();
 
@@ -113,7 +114,7 @@ void test_buddy_6()
     TEST_PASS("Double-free case handled correctly.");
 }
 
-void test_buddy_7()
+bool_ct test_buddy_7()
 {
     TEST_START();
 
@@ -125,7 +126,7 @@ void test_buddy_7()
     TEST_PASS("Non-allocated free case handled correctly.");
 }
 
-void test_buddy_8()
+bool_ct test_buddy_8()
 {
     TEST_START();
 
@@ -137,16 +138,67 @@ void test_buddy_8()
     size_ct free_space = buddy_get_free_space(&buddy_pool);
     TEST_ASSERT(free_space == 0, "free_space=%d", free_space);
 
+    // Reset pool:
+    bool_ct ret = buddy_init(&buddy_pool, memory_pool_start);
+    TEST_ASSERT(ret, "ret=%d", ret);
+    TEST_ASSERT(buddy_pool.total_used == 0, "total_used=%d", buddy_pool.total_used);
+
     TEST_PASS("Memory exhaustion case handled correctly.");
 }
 
-static void (*test_funcs[])() = {test_buddy_1, test_buddy_2, test_buddy_3, test_buddy_4,
-                                 test_buddy_5, test_buddy_6, test_buddy_7, test_buddy_8};
+bool_ct test_buddy_9()
+{
+    TEST_START();
+
+    while (NULL != buddy_alloc(&buddy_pool, 1))
+    {
+        // Exhaust the pool
+    }
+
+    size_ct free_space = buddy_get_free_space(&buddy_pool);
+    TEST_ASSERT(free_space == 0, "free_space=%d", free_space);
+
+    addr_ct iter_addr = memory_pool_start + sizeof(buddy_block_header_ct);
+    while (iter_addr < memory_pool_end)
+    {
+        buddy_free(&buddy_pool, iter_addr);
+        iter_addr += BUDDY_MIN_BLOCK_SIZE;
+    }
+
+    free_space = buddy_get_free_space(&buddy_pool);
+    TEST_ASSERT(free_space == POOL_SIZE, "free_space=%d", free_space);
+
+    // Make dummy frees:
+    for (u32_ct i = 0; i < BUDDY_MIN_BLOCK_SIZE * 10; i += BUDDY_MIN_BLOCK_SIZE)
+    {
+        buddy_free(&buddy_pool, iter_addr + i);
+    }
+
+    free_space = buddy_get_free_space(&buddy_pool);
+    TEST_ASSERT(free_space == POOL_SIZE, "free_space=%d", free_space);
+
+    addr_ct alloc_addr1 = buddy_alloc(&buddy_pool, 1);
+    TEST_ASSERT(alloc_addr1 != NULL, "alloc_addr1=%p", alloc_addr1);
+
+    addr_ct alloc_addr2 = buddy_alloc(&buddy_pool, 1);
+    TEST_ASSERT(alloc_addr2 != NULL, "alloc_addr2=%p", alloc_addr2);
+
+    TEST_ASSERT(alloc_addr1 != alloc_addr2, "alloc_addr1=%p, alloc_addr2=%p", alloc_addr1, alloc_addr2);
+
+    TEST_PASS("Total merge from bottom to up case handled correctly.");
+}
+
+static bool_ct (*test_funcs[])() = {test_buddy_1, test_buddy_2, test_buddy_3, test_buddy_4, test_buddy_5,
+                                    test_buddy_6, test_buddy_7, test_buddy_8, test_buddy_9};
 
 void test_buddy_main()
 {
-    for (u32_ct i = 0; i < 8; i++)
+    for (u32_ct i = 0; i < 9; i++)
     {
-        test_funcs[i]();
+        bool_ct ret = test_funcs[i]();
+        if (!ret)
+        {
+            return;
+        }
     }
 }

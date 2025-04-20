@@ -17,7 +17,7 @@
             TEST_PRINTF("[TEST FAILED] FILE: %s | LINE: %d | Message: ", __FILE__, __LINE__);                          \
             TEST_PRINTF((message), __VA_ARGS__);                                                                       \
             TEST_PRINT("\n");                                                                                          \
-            return;                                                                                                    \
+            return FALSE;                                                                                              \
         }                                                                                                              \
     } while (0);
 
@@ -25,5 +25,5 @@
     do                                                                                                                 \
     {                                                                                                                  \
         TEST_PRINTF("[TEST PASSED] FILE: %s | LINE: %d | Message: %s\n", __FILE__, __LINE__, (message));               \
-        return;                                                                                                        \
+        return TRUE;                                                                                                   \
     } while (0);

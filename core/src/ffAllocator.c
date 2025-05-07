@@ -1,6 +1,7 @@
 #include "ffAllocator.h"
 #include "drivers/d_screen.h"
 #include "kernelHeap.h"
+
 /**
  * Used for allocations the first-fit allocator itself makes.
  */
@@ -64,12 +65,12 @@ bool_ct firstfit_add_block(firstfit_pool_ct *pool, addr_ct start, size_ct size)
     }
     else
     {
-        addr_ct end = start + size;
+        addr_ct end = (s8_ct *)start + size;
         addr_ct curr_block_end;
         firstfit_block_ct *prev_block = NULL;
         while (NULL != curr_block)
         {
-            curr_block_end = curr_block->start + curr_block->size;
+            curr_block_end = (s8_ct *)curr_block->start + curr_block->size;
 
             // Check if the new block overlaps with current block:
             if (start == curr_block->start || end == curr_block_end ||
@@ -93,7 +94,7 @@ bool_ct firstfit_add_block(firstfit_pool_ct *pool, addr_ct start, size_ct size)
             // Coalesce left-hand side block:
             if (NULL != prev_block)
             {
-                addr_ct prev_block_end = prev_block->start + prev_block->size;
+                addr_ct prev_block_end = (s8_ct *)prev_block->start + prev_block->size;
                 if (start == prev_block_end)
                 {
                     if (start == curr_block->start)
@@ -145,7 +146,7 @@ bool_ct firstfit_add_block(firstfit_pool_ct *pool, addr_ct start, size_ct size)
         if (NULL == curr_block)
         {
             // Coalesce at the end of list:
-            addr_ct prev_block_end = prev_block->start + prev_block->size;
+            addr_ct prev_block_end = (s8_ct *)prev_block->start + prev_block->size;
             if (start == prev_block_end)
             {
                 prev_block->size += size;
@@ -203,7 +204,7 @@ static inline addr_ct alloc_common(firstfit_pool_ct *pool, ffit_alloc_constraint
             if (curr_block->size > size)
             {
                 curr_block->size -= size;
-                curr_block->start += size;
+                curr_block->start = (s8_ct *)curr_block->start + size;
             }
             else if (curr_block->size == size)
             {
@@ -258,7 +259,7 @@ static inline addr_ct alloc_common(firstfit_pool_ct *pool, ffit_alloc_constraint
             {
                 firstfit_block_ct *right_block;
                 ret = create_block(&right_block, block_if_split->next_block, max_right_offset_if_split,
-                                   start_if_split + size);
+                                   (s8_ct *)start_if_split + size);
                 if (ret)
                 {
                     block_if_split->next_block = right_block;

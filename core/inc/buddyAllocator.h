@@ -3,19 +3,19 @@
 #include "types.h"
 
 /**
- * Max order (0-indexed) (Largest block size = 2^(BUDDY_MAX_ORDER + BUDDY_FIRST_ORDER_OFFSET))
+ * Max order (0-indexed) (Largest block size = 2^(BUDDY_MAX_ORDER + BUDDY_FIRST_ORDER_OFFSET)).
  */
 #define BUDDY_MAX_ORDER 15
 
 #define BUDDY_FIRST_ORDER_OFFSET 5
 
 /**
- * Smallest allocatable block
+ * Smallest allocatable block size.
  */
 #define BUDDY_MIN_BLOCK_SIZE (1 << BUDDY_FIRST_ORDER_OFFSET)
 
 /**
- * Largest allocatable block
+ * Largest allocatable block size.
  */
 #define BUDDY_MAX_BLOCK_SIZE ((1 << (BUDDY_MAX_ORDER + BUDDY_FIRST_ORDER_OFFSET)))
 
@@ -35,6 +35,11 @@ typedef struct buddy_pool
     buddy_block_ct *free_lists[BUDDY_MAX_ORDER + 1];
 } buddy_pool_ct;
 
+/**
+ * @brief Initialize the given buddy pool with the given start address.
+ *
+ * @warning @p start must be aligned with the pool size ( @ref BUDDY_MAX_BLOCK_SIZE ).
+ */
 bool_ct buddy_init(buddy_pool_ct *pool, addr_ct start);
 
 addr_ct buddy_alloc(buddy_pool_ct *pool, size_ct size);

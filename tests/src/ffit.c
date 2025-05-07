@@ -50,12 +50,14 @@ bool_ct test_ffit_3()
     addr_ct ptr2 = firstfit_alloc(&ffit_pool, 64);
     addr_ct ptr3 = firstfit_alloc(&ffit_pool, 128);
 
-    firstfit_free(&ffit_pool, ptr2); // Create a free space in the middle
+    TEST_ASSERT(NULL != ptr1 && NULL != ptr2 && NULL != ptr3, "ptr1=%p, ptr2=%p, ptr3=%p", ptr1, ptr2, ptr3);
+    bool_ct ret = firstfit_free(&ffit_pool, ptr2); // Create a free space in the middle
+    TEST_ASSERT(ret, "ret=%d", ret);
 
     addr_ct ptr4 = firstfit_alloc(&ffit_pool, 48);             // Should use the freed space
     TEST_ASSERT(ptr2 == ptr4, "ptr2=%p, ptr4=%p", ptr2, ptr4); // Should reuse the free block
 
-    bool_ct ret = firstfit_free(&ffit_pool, ptr1);
+    ret = firstfit_free(&ffit_pool, ptr1);
     TEST_ASSERT(ret, "ret=%d", ret);
 
     ret = firstfit_free(&ffit_pool, ptr3);
@@ -72,6 +74,7 @@ bool_ct test_ffit_4()
     TEST_START();
 
     addr_ct ptr;
+    firstfit_block_ct *block;
     while ((ptr = firstfit_alloc(&ffit_pool, 1024)) != NULL)
     {
         // Allocate until failure

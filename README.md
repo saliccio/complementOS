@@ -36,3 +36,6 @@ I believe that reinventing the wheel is beneficial in many aspects.
 - [ ] Shell
 - [ ] System clock
 - [ ] Custom GUI
+
+## About Contributions
+This is a personal project for the purpose of training, therefore no contributions (PRs) will be accepted, thanks for your understanding!

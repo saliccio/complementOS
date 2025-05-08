@@ -50,118 +50,82 @@ static inline bool_ct create_block(firstfit_block_ct **block, firstfit_block_ct 
 
 bool_ct firstfit_add_block(firstfit_pool_ct *pool, addr_ct start, size_ct size)
 {
-    firstfit_block_ct *curr_block = pool->first_block;
-    firstfit_block_ct *new_block = NULL;
-    bool_ct ret;
-    if (NULL == curr_block)
+    if (0 == size)
     {
-        ret = create_block(&new_block, NULL, size, start);
-        if (!ret)
+        return FALSE;
+    }
+
+    firstfit_block_ct *prev_block = NULL;
+    firstfit_block_ct *curr_block = pool->first_block;
+    addr_ct end = (s8_ct *)start + size;
+    while (NULL != curr_block && (curr_block->start + curr_block->size) <= start)
+    {
+        prev_block = curr_block;
+        curr_block = curr_block->next_block;
+    }
+
+    bool_ct can_return = FALSE;
+    if (NULL != curr_block)
+    {
+        // Check if the new block overlaps with current block:
+        if (start == curr_block->start || end == (curr_block->start + curr_block->size) ||
+            IS_BETWEEN(start, curr_block->start, (curr_block->start + curr_block->size)) ||
+            IS_BETWEEN(end, curr_block->start, (curr_block->start + curr_block->size)) ||
+            IS_BETWEEN(curr_block->start, start, end) || IS_BETWEEN((curr_block->start + curr_block->size), start, end))
         {
             return FALSE;
         }
 
+        // Coalesce the right-hand side block:
+        if (end == curr_block->start)
+        {
+            curr_block->start = start;
+            curr_block->size += size;
+            can_return = TRUE;
+        }
+    }
+
+    // Coalesce the left-hand side block:
+    if (NULL != prev_block)
+    {
+        addr_ct prev_block_end = (s8_ct *)prev_block->start + prev_block->size;
+        if (start == prev_block_end)
+        {
+            if (NULL != curr_block && start == curr_block->start)
+            {
+                prev_block->size += curr_block->size;
+                prev_block->next_block = curr_block->next_block;
+                DEALLOC(curr_block);
+            }
+            else
+            {
+                prev_block->size += size;
+            }
+
+            can_return = TRUE;
+        }
+    }
+
+    if (can_return)
+    {
+        return TRUE;
+    }
+
+    // No coalescing is possible:
+    firstfit_block_ct *new_block = NULL;
+    bool_ct ret = create_block(&new_block, curr_block, size, start);
+    if (!ret)
+    {
+        return FALSE;
+    }
+
+    if (NULL == prev_block)
+    {
         pool->first_block = new_block;
     }
     else
     {
-        addr_ct end = (s8_ct *)start + size;
-        addr_ct curr_block_end;
-        firstfit_block_ct *prev_block = NULL;
-        while (NULL != curr_block)
-        {
-            curr_block_end = (s8_ct *)curr_block->start + curr_block->size;
-
-            // Check if the new block overlaps with current block:
-            if (start == curr_block->start || end == curr_block_end ||
-                IS_BETWEEN(start, curr_block->start, curr_block_end) ||
-                IS_BETWEEN(end, curr_block->start, curr_block_end) || IS_BETWEEN(curr_block->start, start, end) ||
-                IS_BETWEEN(curr_block_end, start, end))
-            {
-                return FALSE;
-            }
-
-            bool_ct can_break = FALSE;
-
-            // Coalesce right-hand side block:
-            if (end == curr_block->start)
-            {
-                curr_block->start = start;
-                curr_block->size += size;
-                can_break = TRUE;
-            }
-
-            // Coalesce left-hand side block:
-            if (NULL != prev_block)
-            {
-                addr_ct prev_block_end = (s8_ct *)prev_block->start + prev_block->size;
-                if (start == prev_block_end)
-                {
-                    if (start == curr_block->start)
-                    {
-                        prev_block->size += curr_block->size;
-                        prev_block->next_block = curr_block->next_block;
-                        DEALLOC(curr_block);
-                    }
-                    else // This else is here to prevent adding 'size' twice into 'prev_block->size'
-                    {
-                        prev_block->size += size;
-                    }
-
-                    can_break = TRUE;
-                }
-            }
-
-            if (can_break)
-            {
-                break;
-            }
-
-            // No coalescing is possible:
-            if (end < curr_block->start)
-            {
-                ret = create_block(&new_block, curr_block, size, start);
-                if (!ret)
-                {
-                    return FALSE;
-                }
-
-                if (NULL == prev_block)
-                {
-                    pool->first_block = new_block;
-                }
-                else
-                {
-                    prev_block->next_block = new_block;
-                }
-
-                break;
-            }
-
-            prev_block = curr_block;
-            curr_block = curr_block->next_block;
-        }
-
-        // Insert at the end of list:
-        if (NULL == curr_block)
-        {
-            // Coalesce at the end of list:
-            addr_ct prev_block_end = (s8_ct *)prev_block->start + prev_block->size;
-            if (start == prev_block_end)
-            {
-                prev_block->size += size;
-            }
-            else
-            {
-                ret = create_block(&new_block, NULL, size, start);
-                if (!ret)
-                {
-                    return FALSE;
-                }
-
-                prev_block->next_block = new_block;
-            }
-        }
+        prev_block->next_block = new_block;
     }
 
     return TRUE;

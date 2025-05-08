@@ -252,12 +252,24 @@ bool_ct test_ffit_12()
     TEST_PASS("Allocation at addresses 0 and 1 passed.");
 }
 
-static bool_ct (*test_funcs[])() = {test_ffit_1, test_ffit_2, test_ffit_3, test_ffit_4,  test_ffit_5,  test_ffit_6,
-                                    test_ffit_7, test_ffit_8, test_ffit_9, test_ffit_10, test_ffit_11, test_ffit_12};
+bool_ct test_ffit_13()
+{
+    TEST_START();
+
+    firstfit_init(&ffit_pool);
+    bool_ct ret = firstfit_add_block(&ffit_pool, NULL, 0);
+    TEST_ASSERT(!ret, "ret=%d", ret);
+
+    TEST_PASS("Add block with size=0 passed.");
+}
+
+static bool_ct (*test_funcs[])() = {test_ffit_1,  test_ffit_2,  test_ffit_3, test_ffit_4, test_ffit_5,
+                                    test_ffit_6,  test_ffit_7,  test_ffit_8, test_ffit_9, test_ffit_10,
+                                    test_ffit_11, test_ffit_12, test_ffit_13};
 
 void test_ffit_main()
 {
-    for (u32_ct i = 0; i < 12; i++)
+    for (u32_ct i = 0; i < 13; i++)
     {
         bool_ct ret = test_funcs[i]();
         if (!ret)

@@ -4,8 +4,7 @@ OUTPUT_FORMAT(binary)
 OUTPUT_ARCH(i386:x86-64)
 
 KERNEL_VMA = 0xFFFFFF8000000000;
-KSTACK_SIZE = 32K;
-KHEAP_SIZE = 1M;
+KERNEL_AREA_SIZE = 10M;
 
 SECTIONS
 {
@@ -56,18 +55,11 @@ SECTIONS
         _bss_end = .;
     }
 
-    .kstack : AT(ADDR(.kstack) - KERNEL_VMA)
+    .kernel_area : AT(ADDR(.kernel_area) - KERNEL_VMA)
     {
-        _kstack_start = .;
-        . += KSTACK_SIZE;
-        _kstack_end = .;
-    }
-
-    .kheap : AT(ADDR(.kheap) - KERNEL_VMA) ALIGN(1M)
-    {
-        _kheap_start = .;
-        . += KHEAP_SIZE;
-        _kheap_end = .;
+        _kernel_area_start = .;
+        . += KERNEL_AREA_SIZE;
+        _kernel_area_end = .;
     }
 
     _kernel_end = .;

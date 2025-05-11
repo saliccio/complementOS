@@ -1,6 +1,6 @@
+#include "core/ffAllocator.h"
+#include "core/kernelHeap.h"
 #include "drivers/d_screen.h"
-#include "ffAllocator.h"
-#include "kernelHeap.h"
 #include "types.h"
 #include "utils.h"
 
@@ -15,7 +15,7 @@ bool_ct test_ffit_1()
 {
     TEST_START();
 
-    firstfit_init(&ffit_pool);
+    firstfit_init(&ffit_pool, kmalloc, kfree);
 
     bool_ct ret = firstfit_add_block(&ffit_pool, memory, POOL_SIZE);
     TEST_ASSERT(ret, "ret=%d", ret);
@@ -81,7 +81,7 @@ bool_ct test_ffit_4()
     }
 
     // Restore the pool:
-    firstfit_init(&ffit_pool);
+    firstfit_init(&ffit_pool, kmalloc, kfree);
     bool_ct ret = firstfit_add_block(&ffit_pool, memory, POOL_SIZE);
     TEST_ASSERT(ret, "ret=%d", ret);
 
@@ -233,6 +233,18 @@ bool_ct test_ffit_11()
     ret = firstfit_add_block(&ffit_pool, memory_secondary, POOL_SIZE_SECONDARY);
     TEST_ASSERT(ret, "ret=%d", ret);
 
+    ret = firstfit_add_block(&ffit_pool, memory_secondary + POOL_SIZE_SECONDARY + 1, 1);
+    TEST_ASSERT(ret, "ret=%d", ret);
+
+    ret = firstfit_add_block(&ffit_pool, memory_secondary + POOL_SIZE_SECONDARY, 1);
+    TEST_ASSERT(ret, "ret=%d", ret);
+
+    ret = firstfit_add_block(&ffit_pool, memory_secondary + POOL_SIZE_SECONDARY + 2, 1);
+    TEST_ASSERT(ret, "ret=%d", ret);
+
+    ret = firstfit_add_block(&ffit_pool, memory_secondary + POOL_SIZE_SECONDARY + 3, 1);
+    TEST_ASSERT(ret, "ret=%d", ret);
+
     TEST_PASS("Block insertions passed.");
 }
 
@@ -256,7 +268,7 @@ bool_ct test_ffit_13()
 {
     TEST_START();
 
-    firstfit_init(&ffit_pool);
+    firstfit_init(&ffit_pool, kmalloc, kfree);
     bool_ct ret = firstfit_add_block(&ffit_pool, NULL, 0);
     TEST_ASSERT(!ret, "ret=%d", ret);
 

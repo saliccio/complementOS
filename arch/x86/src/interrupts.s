@@ -5,56 +5,86 @@
 ; Housekeeping routine for exception routines
 exc_housekeeping:
     ; 1. Save current CPU state
-	push rdi
-	push rsi
-	push rbp
-	push rsp
-	push rbx
-	push rdx
-	push rcx
-	push rax
+    push rax
+    push rbx
+    push rcx
+    push rdx
+    push rsi
+    push rdi
+    push rbp
+    push r8
+    push r9
+    push r10
+    push r11
+    push r12
+    push r13
+    push r14
+    push r15
 	
     ; 2. Call C general handler
-	call exc_general_handler
+	; Pass the pointer to the stack (which now contains our register structure)
+    mov rdi, rsp  ; First argument in x64 calling convention is in rdi
+    call exc_general_handler
 
     ; 3. Restore state
-	pop rax
-	pop rcx
-	pop rdx
-	pop rbx
-	pop rsp
-	pop rbp
-	pop rsi
-	pop rdi
+    pop r15
+    pop r14
+    pop r13
+    pop r12
+    pop r11
+    pop r10
+    pop r9
+    pop r8
+    pop rbp
+    pop rdi
+    pop rsi
+    pop rdx
+    pop rcx
+    pop rbx
+    pop rax
 	
     add esp, 16 ; Cleans up the pushed error code and pushed exception number
     sti
 	iretq ; Pops cs, eip, eflags, ss, esp
 
 irq_housekeeping:
-	push rdi
-	push rsi
-	push rbp
-	push rsp
-	push rbx
-	push rdx
-	push rcx
-	push rax
+    ; 1. Save current CPU state
+    push rax
+    push rbx
+    push rcx
+    push rdx
+    push rsi
+    push rdi
+    push rbp
+    push r8
+    push r9
+    push r10
+    push r11
+    push r12
+    push r13
+    push r14
+    push r15
 
-    mov ax, ds
-
+    mov rdi, rsp
     call irq_general_handler
 
-	pop rax
-	pop rcx
-	pop rdx
-	pop rbx
-	pop rsp
-	pop rbp
-	pop rsi
-	pop rdi
+    pop r15
+    pop r14
+    pop r13
+    pop r12
+    pop r11
+    pop r10
+    pop r9
+    pop r8
+    pop rbp
+    pop rdi
+    pop rsi
+    pop rdx
+    pop rcx
+    pop rbx
+    pop rax
 
-    add esp, 8
+    add esp, 16
     sti
     iretq
 	

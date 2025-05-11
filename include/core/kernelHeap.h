@@ -2,10 +2,7 @@
 
 #include "types.h"
 
-extern addr_ct _kheap_start;
-extern addr_ct _kheap_end;
-
-bool_ct kheap_init();
+bool_ct kheap_init(addr_ct start);
 
 addr_ct kmalloc(size_ct size);
 

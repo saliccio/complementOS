@@ -1,6 +1,8 @@
 #pragma once
 
-#define NULL 0
+#include "errCodes.h"
+
+#define NULL ((addr_ct)0)
 
 #define TRUE 1
 #define FALSE 0

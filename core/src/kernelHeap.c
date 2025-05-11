@@ -1,11 +1,11 @@
-#include "kernelHeap.h"
+#include "core/kernelHeap.h"
 #include "buddyAllocator.h"
 
 static buddy_pool_ct kheap_pool;
 
-bool_ct kheap_init()
+bool_ct kheap_init(addr_ct start)
 {
-    return buddy_init(&kheap_pool, &_kheap_start);
+    return buddy_init(&kheap_pool, start);
 }
 
 addr_ct kmalloc(size_ct size)

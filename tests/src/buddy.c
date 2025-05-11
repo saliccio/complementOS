@@ -1,6 +1,6 @@
 #include "buddyAllocator.h"
+#include "core/kernelHeap.h"
 #include "drivers/d_screen.h"
-#include "kernelHeap.h"
 #include "types.h"
 #include "utils.h"
 

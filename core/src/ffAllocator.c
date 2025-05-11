@@ -1,16 +1,6 @@
-#include "ffAllocator.h"
+#include "core/ffAllocator.h"
+#include "core/kernelHeap.h"
 #include "drivers/d_screen.h"
-#include "kernelHeap.h"
-
-/**
- * Used for allocations the first-fit allocator itself makes.
- */
-#define ALLOC(size) (kmalloc(size))
-
-/**
- * Used for deallocations the first-fit allocator itself makes.
- */
-#define DEALLOC(addr) (kfree(addr))
 
 #define PTR_TO_SIZE(pointer) ((size_ct)(pointer))
 
@@ -27,15 +17,18 @@ typedef enum ffit_alloc_constraint
     ALIGNMENT = 2,
 } ffit_alloc_constraint_ct;
 
-void firstfit_init(firstfit_pool_ct *pool)
+void firstfit_init(firstfit_pool_ct *pool, addr_ct (*xmalloc)(size_ct size), void (*xfree)(addr_ct addr))
 {
     pool->first_block = NULL;
     pool->first_alloc_info = NULL;
+    pool->xmalloc = xmalloc;
+    pool->xfree = xfree;
 }
 
-static inline bool_ct create_block(firstfit_block_ct **block, firstfit_block_ct *next, size_ct size, addr_ct start)
+static inline bool_ct create_block(firstfit_pool_ct *pool, firstfit_block_ct **block, firstfit_block_ct *next,
+                                   size_ct size, addr_ct start)
 {
-    *block = ALLOC(sizeof(firstfit_block_ct));
+    *block = pool->xmalloc(sizeof(firstfit_block_ct));
     if (NULL == *block)
     {
         return FALSE;
@@ -95,7 +88,7 @@ bool_ct firstfit_add_block(firstfit_pool_ct *pool, addr_ct start, size_ct size)
             {
                 prev_block->size += curr_block->size;
                 prev_block->next_block = curr_block->next_block;
-                DEALLOC(curr_block);
+                pool->xfree(curr_block);
             }
             else
             {
@@ -113,7 +106,7 @@ bool_ct firstfit_add_block(firstfit_pool_ct *pool, addr_ct start, size_ct size)
 
     // No coalescing is possible:
     firstfit_block_ct *new_block = NULL;
-    bool_ct ret = create_block(&new_block, curr_block, size, start);
+    bool_ct ret = create_block(pool, &new_block, curr_block, size, start);
     if (!ret)
     {
         return FALSE;
@@ -145,7 +138,7 @@ static inline addr_ct alloc_common(firstfit_pool_ct *pool, ffit_alloc_constraint
     firstfit_block_ct *curr_block = pool->first_block;
     firstfit_block_ct *prev_block = NULL;
 
-    firstfit_alloc_info_ct *info = ALLOC(sizeof(firstfit_alloc_info_ct));
+    firstfit_alloc_info_ct *info = pool->xmalloc(sizeof(firstfit_alloc_info_ct));
     if (NULL == info)
     {
         return NULL;
@@ -181,7 +174,7 @@ static inline addr_ct alloc_common(firstfit_pool_ct *pool, ffit_alloc_constraint
                     prev_block->next_block = curr_block->next_block;
                 }
 
-                DEALLOC(curr_block);
+                pool->xfree(curr_block);
             }
 
             ret_addr = block_start;
@@ -222,7 +215,7 @@ static inline addr_ct alloc_common(firstfit_pool_ct *pool, ffit_alloc_constraint
             if (max_right_offset_if_split > 0)
             {
                 firstfit_block_ct *right_block;
-                ret = create_block(&right_block, block_if_split->next_block, max_right_offset_if_split,
+                ret = create_block(pool, &right_block, block_if_split->next_block, max_right_offset_if_split,
                                    (s8_ct *)start_if_split + size);
                 if (ret)
                 {
@@ -246,7 +239,7 @@ static inline addr_ct alloc_common(firstfit_pool_ct *pool, ffit_alloc_constraint
     }
     else
     {
-        DEALLOC(info);
+        pool->xfree(info);
     }
 
     return ret_addr;
@@ -318,7 +311,7 @@ bool_ct firstfit_free(firstfit_pool_ct *pool, addr_ct addr)
         prev_info->next = curr_info->next;
     }
 
-    DEALLOC(curr_info);
+    pool->xfree(curr_info);
 
     return firstfit_add_block(pool, addr, allocated_size);
 }

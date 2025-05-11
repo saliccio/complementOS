@@ -5,8 +5,10 @@
 
 cli	 ; Temporarily disable interrupts until an IDT (interrupt descriptor table) for protected mode is set-up
 
-mov ebp, STACK_BASE
+mov ebp, [STACK_BASE]
 mov esp, ebp  ; Move the stack pointer to an appropriate place
+mov ax, 0x1000
+add [STACK_BASE], ax  ; Move it upwards for the APs
 
 call disk_load   ; Load sectors from the disk
 call a20_enable  ; Enable A20 line of the memory bus
@@ -57,7 +59,7 @@ call_main:
 AP_CODE_SEGMENT equ 0x800
 KERNEL_PHYSICAL_ADDRESS_SEGMENT equ 0x1000
 KERNEL_VIRTUAL_ADDRESS dq 0xFFFFFF8000010000
-STACK_BASE equ 0x99900
+STACK_BASE dw 0x99000
 
 times 510-($-$$) db 0  ; padding
 dw	0xaa55  ; valid boot indicator
@@ -68,8 +70,10 @@ dw	0xaa55  ; valid boot indicator
 ap_start:
     cli
 
-    mov ebp, STACK_BASE
+    mov ebp, [STACK_BASE]
     mov esp, ebp
+    mov ax, 0x1000
+    add [STACK_BASE], ax
 
     lgdt [gdt_pointer]	; Load GDT (Global Descriptor Table) into the CPU
     mov eax, cr0

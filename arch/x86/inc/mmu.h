@@ -1,6 +1,6 @@
 #pragma once
 
-#include "types.h"
+#include "arch/mmu.h"
 
 #define EARLY_PML4T_ADDRESS (0x1000)
 #define EARLY_PDPT_ADDRESS (0x2000)
@@ -8,19 +8,26 @@
 #define EARLY_PAGE_TABLE_1_ADDRESS (0x4000)
 #define EARLY_PAGE_TABLE_2_ADDRESS (0x5000)
 
-#define PAGE_SIZE 4096
-
 #define PAGE_TABLE_NO_OF_ENTRIES 512
 
-#define PAGE_FLAG_PRESENT 1
-#define PAGE_FLAG_READ_WRITE 2
-
-#define PAGE_DIRECTORY_DEFAULT_ENTRY 0x00000002
-
-// Flags: Supervisor, read/write, present
-#define PAGE_TABLE_ENTRY(frame_index) ((frame_index * 0x1000) | 3)
-
 #define VIRTUAL_ADDRESS_OF_PAGE_TABLE(index) (0xFFC00000 + index * 0x1000)
+
+// Extract PML4 index (bits 39-47)
+#define PML4_INDEX(addr) (((u64_ct)(addr) >> 39) & 0x1FF)
+
+// Extract page directory pointer table index (bits 30-38)
+#define PDPT_INDEX(addr) (((u64_ct)(addr) >> 30) & 0x1FF)
+
+// Extract page directory index (bits 21-29)
+#define PD_INDEX(addr) (((u64_ct)(addr) >> 21) & 0x1FF)
+
+// Extract page table index (bits 12-20)
+#define PT_INDEX(addr) (((u64_ct)(addr) >> 12) & 0x1FF)
+
+// 2 MB is allocated for page table data structures
+#define MEM_AREA_SIZE (1024 * 1024 * 2)
+
+#define PAGE_SHIFT (12)
 
 // PML4 Entry (PML4E)
 typedef struct pml4_entry
@@ -100,14 +107,9 @@ typedef struct pt_entry
 } __attribute__((packed)) pt_entry_ct;
 
 // Common entry type for all table types:
-typedef addr_ct table_entry_ct;
+typedef u64_ct table_entry_ct;
 
-// Used for all table types (PML4T, PDPT, PD, PT)
-typedef struct mmu_table
+struct page_map_info
 {
-    addr_ct first_entry;
-    u32_ct no_of_entries;
-    u64_ct alloc_bitmap[PAGE_TABLE_NO_OF_ENTRIES / 64];
-} mmu_table_ct;
-
-void mmu_map_memory(addr_ct virt_addr, addr_ct physical_addr);
+    pml4_entry_ct *pml4;
+};

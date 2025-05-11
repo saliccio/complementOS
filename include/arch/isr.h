@@ -22,15 +22,15 @@
 #define INTVEC_KEYBOARD IRQ1
 #define INTVEC_MOUSE IRQ12
 
-typedef struct
+typedef struct isr_registers
 {
-    u32_ct ds;                                     // Data segment entry offset
-    u32_ct edi, esi, ebp, esp, ebx, edx, ecx, eax; // Pushed by 'pusha' instruction
-    u32_ct int_no, err_code;                       // Interrupt number and error code (if exists)
-    u32_ct eip, cs, eflags, useresp, ss;           // Pushed by the processor automatically
-} __attribute__((packed)) isr_registers_t;
+    u64_ct r15, r14, r13, r12, r11, r10, r9, r8;
+    u64_ct rbp, rdi, rsi, rdx, rcx, rbx, rax;
+    u64_ct int_no, error_code;
+    u64_ct rip, cs, rflags, rsp, ss; // Automatically pushed by CPU for interrupts
+} __attribute__((packed)) isr_registers_ct;
 
-typedef void (*isr_handler_t)(isr_registers_t);
+typedef void (*isr_handler_ct)(isr_registers_ct *);
 
 // Set a handler function for given interrupt number.
-void isr_set_handler(u8_ct int_no, isr_handler_t handler);
+void isr_set_handler(u8_ct int_no, isr_handler_ct handler);

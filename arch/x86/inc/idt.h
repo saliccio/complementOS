@@ -39,3 +39,5 @@ typedef struct idt_ptr
 
 // Initializes IDT by setting up entries.
 void idt_init();
+
+void idt_load();

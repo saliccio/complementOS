@@ -27,6 +27,8 @@
 #define APIC_REG_TIMER_COUNT 0x390
 #define APIC_REG_TIMER_DIV 0x3E0
 
+#define APIC_TIMER_VECTOR 0x20 // Choose a free interrupt vector (avoid 0–31)
+
 // IPI command definitions
 #define APIC_ICR_DELIVERY_FIXED 0x00000000
 #define APIC_ICR_DELIVERY_INIT 0x00000500
@@ -68,6 +70,16 @@ static inline void lapic_write(u32_ct reg, u32_ct value)
     *((volatile u32_ct *)(apic_base_addr + reg)) = value;
 }
 
+void lapic_enable()
+{
+    u64_ct apic_msr = read_msr(APIC_BASE_MSR);
+    apic_msr |= APIC_BASE_MSR_ENABLE;
+    write_msr(APIC_BASE_MSR, apic_msr);
+
+    /* Set Spurious Interrupt Vector Register to enable APIC */
+    lapic_write(APIC_REG_SVR, lapic_read(APIC_REG_SVR) | 0x100);
+}
+
 err_code_ct lapic_init()
 {
     err_code_ct ret = NO_ERROR;
@@ -84,12 +96,7 @@ err_code_ct lapic_init()
         return ret;
     }
 
-    /* Enable APIC */
-    apic_msr |= APIC_BASE_MSR_ENABLE;
-    write_msr(APIC_BASE_MSR, apic_msr);
-
-    /* Set Spurious Interrupt Vector Register to enable APIC */
-    lapic_write(APIC_REG_SVR, lapic_read(APIC_REG_SVR) | 0x100);
+    lapic_enable();
 
     return ret;
 }
@@ -166,4 +173,9 @@ u32_ct lapic_get_core_id()
 {
     u32_ct apic_id_register = lapic_read(APIC_REG_ID);
     return (apic_id_register >> 24) & 0xFF; // Bits [31:24] hold the APIC ID
+}
+
+void lapic_eoi()
+{
+    lapic_write(APIC_REG_EOI, 0);
 }

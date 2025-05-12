@@ -13,5 +13,6 @@ typedef enum ipi_destination
 } ipi_destination_ct;
 
 err_code_ct lapic_init();
-
+void lapic_enable();
 void lapic_start_aps();
+void lapic_eoi();

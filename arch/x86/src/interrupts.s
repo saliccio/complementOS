@@ -43,7 +43,7 @@ exc_housekeeping:
     pop rbx
     pop rax
 	
-    add esp, 16 ; Cleans up the pushed error code and pushed exception number
+    add rsp, 16 ; Cleans up the pushed error code and pushed exception number
     sti
 	iretq ; Pops cs, eip, eflags, ss, esp
 
@@ -84,7 +84,7 @@ irq_housekeeping:
     pop rbx
     pop rax
 
-    add esp, 16
+    add rsp, 16
     sti
     iretq
 	

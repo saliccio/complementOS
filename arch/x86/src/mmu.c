@@ -8,6 +8,7 @@
 #include "core/kString.h"
 #include "core/kernelHeap.h"
 #include "core/memArea.h"
+#include "core/smp.h"
 #include "core/staticHooks.h"
 #include "drivers/d_screen.h"
 #include "isr.h"
@@ -16,16 +17,18 @@
 
 static page_map_info_ct kernel_context;
 static firstfit_pool_ct mmu_mem_pool;
+static spinlock_ct spin;
 
 static void page_fault_handler(isr_registers_ct *registers)
 {
+    smp_lock(&spin);
     vga_printf("pagefault, error code=%d\n", registers->error_code);
-    while (1)
-        ;
+    smp_unlock(&spin);
 }
 
 err_code_ct mmu_init()
 {
+    smp_init_lock(&spin);
     isr_set_handler(EXCVEC_PAGEFAULT, page_fault_handler);
 
     addr_ct mem_area = mem_area_alloc_with_alignment(MEM_AREA_SIZE, 4096);

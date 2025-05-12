@@ -53,13 +53,19 @@ __attribute__((section(".text.start"), used)) void boot_main()
 
         call_static_hook_functions(BOOT_END);
     }
+    else
+    {
+        idt_load();
 
-    /* Wait all cores to startup */
-    smp_wait_on_barrier(&cpu_init_barrier, ALL_CORES_AFF);
+        lapic_enable();
+    }
 
     smp_lock(&boot_spinlock);
     vga_printf("Core %d initialized.\n", smp_get_core_id());
     smp_unlock(&boot_spinlock);
+
+    /* Wait all cores to startup */
+    smp_wait_on_barrier(&cpu_init_barrier, ALL_CORES_AFF);
 
     ASM("sti"); // Enable interrupts again
 

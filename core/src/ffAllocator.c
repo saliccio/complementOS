@@ -315,3 +315,8 @@ bool_ct firstfit_free(firstfit_pool_ct *pool, addr_ct addr)
 
     return firstfit_add_block(pool, addr, allocated_size);
 }
+
+addr_ct firstfit_get_first_free_address(firstfit_pool_ct *pool)
+{
+    return pool->first_block->start;
+}

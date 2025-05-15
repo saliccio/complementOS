@@ -3,6 +3,7 @@
 #include "core/addrSpace.h"
 #include "core/kernelHeap.h"
 #include "drivers/d_screen.h"
+#include "ld.h"
 
 static virt_mem_info_ct kernel_mem_info;
 static firstfit_pool_ct physical_addr_space;
@@ -11,11 +12,11 @@ err_code_ct mem_init_kernel_addr_space()
 {
     firstfit_init(&kernel_mem_info.virt_addr_space, kmalloc, kfree);
     bool_ct ret = firstfit_add_block(&kernel_mem_info.virt_addr_space, (addr_ct)KERNEL_VIRT_ADDR_SPACE_START,
-                                     ~0 - KERNEL_VIRT_ADDR_SPACE_START);
+                                     ~(size_ct)0 - KERNEL_VIRT_ADDR_SPACE_START);
 
     firstfit_init(&physical_addr_space, kmalloc, kfree);
-    ret |= firstfit_add_block(&physical_addr_space, (addr_ct)0, ~0);
-    (void)firstfit_alloc_with_start_addr(&physical_addr_space, 0, (addr_ct)0x400000);
+    ret |= firstfit_add_block(&physical_addr_space, (addr_ct)0, ~(size_ct)0);
+    (void)firstfit_alloc_with_start_addr(&physical_addr_space, (addr_ct)0x400000, (addr_ct)0);
 
     if (!ret)
     {
@@ -36,17 +37,12 @@ static inline err_code_ct map_inner(virt_mem_info_ct *mem_info, addr_ct virt_add
                                     size_ct page_count, map_flags_ct flags)
 {
     size_ct size = page_count * PAGE_SIZE;
-    addr_ct ret_phys_addr = firstfit_alloc_with_start_addr(&physical_addr_space, size, physical_addr);
-    if (NULL == ret_phys_addr)
-    {
-        return NO_MEMORY;
-    }
 
     addr_ct ret_virt_addr = firstfit_alloc_with_start_addr(&mem_info->virt_addr_space, size, virt_addr);
     err_code_ct ret = NO_ERROR;
     if (NULL == ret_virt_addr)
     {
-        ret = NO_MEMORY;
+        ret = ALREADY_MAPPED;
     }
     else
     {
@@ -82,7 +78,7 @@ static inline err_code_ct map_inner(virt_mem_info_ct *mem_info, addr_ct virt_add
 err_code_ct mem_map_to_phys_addr(virt_mem_info_ct *mem_info, addr_ct virt_addr, addr_ct physical_addr,
                                  size_ct page_count, map_flags_ct flags)
 {
-    if (PAGE_OFFSET(virt_addr) != 0 || PAGE_OFFSET(physical_addr) != 0)
+    if (PAGE_OFFSET(virt_addr) != 0 || PAGE_OFFSET(physical_addr) != 0 || page_count == 0)
     {
         return BAD_PARAM;
     }
@@ -92,7 +88,7 @@ err_code_ct mem_map_to_phys_addr(virt_mem_info_ct *mem_info, addr_ct virt_addr, 
 
 err_code_ct mem_map(virt_mem_info_ct *mem_info, addr_ct virt_addr, size_ct page_count, map_flags_ct flags)
 {
-    if (PAGE_OFFSET(virt_addr) != 0)
+    if (PAGE_OFFSET(virt_addr) != 0 || page_count == 0)
     {
         return BAD_PARAM;
     }

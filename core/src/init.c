@@ -3,18 +3,19 @@
 #include "buddyAllocator.h"
 #include "core/kernelHeap.h"
 #include "core/memArea.h"
+#include "core/memDefs.h"
 #include "core/staticHooks.h"
 #include "drivers/d_screen.h"
 #include "ld.h"
-#include "memDefs.h"
 #include "types.h"
 
 #define ALIGN_UP_TO(size, alignment) (((size) + (alignment)-1) & (~((alignment)-1)))
 
-static inline bool_ct init_mem()
+static bool_ct init_mem()
 {
     // Must init kheap first:
     addr_ct heap_start = (addr_ct)ALIGN_UP_TO((size_ct)&_kernel_area_start, BUDDY_MAX_BLOCK_SIZE);
+    vga_printf("heap_start=%p\n", heap_start);
 
     bool_ct ret = kheap_init(heap_start);
     if (!ret)
@@ -44,7 +45,7 @@ static inline bool_ct init_mem()
     return FALSE;
 }
 
-void core_entry()
+void core_init()
 {
     call_static_hook_functions(CORE_INIT_START);
 
@@ -58,4 +59,12 @@ void core_entry()
     }
 
     call_static_hook_functions(CORE_INIT_END);
+}
+
+void core_entry(addr_ct arg)
+{
+    while (1)
+    {
+        // Hang OS execution
+    }
 }

@@ -24,6 +24,8 @@ static void page_fault_handler(isr_registers_ct *registers)
     smp_lock(&spin);
     vga_printf("pagefault, error code=%d\n", registers->error_code);
     smp_unlock(&spin);
+    while (1)
+        ;
 }
 
 err_code_ct mmu_init()
@@ -137,7 +139,7 @@ static bool_ct virt_to_phys(page_map_info_ct *info, addr_ct virt_addr, addr_ct *
 err_code_ct mmu_map_memory(page_map_info_ct *info, addr_ct virt_addr, addr_ct physical_addr, u32_ct page_count,
                            u64_ct flags)
 {
-    if (PAGE_OFFSET(virt_addr) != 0 || PAGE_OFFSET(physical_addr) != 0)
+    if (PAGE_OFFSET(virt_addr) != 0 || PAGE_OFFSET(physical_addr) != 0 || page_count == 0)
     {
         return BAD_PARAM;
     }

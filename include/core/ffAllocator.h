@@ -35,3 +35,5 @@ addr_ct firstfit_alloc_with_start_addr(firstfit_pool_ct *pool, size_ct size, add
 addr_ct firstfit_alloc_with_alignment(firstfit_pool_ct *pool, size_ct size, size_ct alignment);
 
 bool_ct firstfit_free(firstfit_pool_ct *pool, addr_ct addr);
+
+addr_ct firstfit_get_first_free_address(firstfit_pool_ct *pool);

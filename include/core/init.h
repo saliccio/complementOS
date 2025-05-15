@@ -1,3 +1,7 @@
 #pragma once
 
-void core_entry();
+#include "types.h"
+
+void core_init();
+
+void core_entry(addr_ct arg);

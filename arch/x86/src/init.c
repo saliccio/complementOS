@@ -42,6 +42,8 @@ __attribute__((section(".text.start"), used)) void boot_main()
             }
         }
 
+        (void)call_static_hook_functions(MMU_INIT_END);
+
         ret = lapic_init();
         if (NO_ERROR != ret)
         {

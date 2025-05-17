@@ -10,12 +10,16 @@ extern addr_ct _hook_CORE_INIT_START_end;
 extern addr_ct _hook_CORE_INIT_END_start;
 extern addr_ct _hook_CORE_INIT_END_end;
 
+extern addr_ct _hook_MMU_INIT_END_start;
+extern addr_ct _hook_MMU_INIT_END_end;
+
 extern addr_ct _hook_BOOT_END_start;
 extern addr_ct _hook_BOOT_END_end;
 
 static addr_ct func_addresses[NUM_OF_STATIC_HOOKS][2] = {{&_hook_BOOT_START_start, &_hook_BOOT_START_end},
                                                          {&_hook_CORE_INIT_START_start, &_hook_CORE_INIT_START_end},
                                                          {&_hook_CORE_INIT_END_start, &_hook_CORE_INIT_END_end},
+                                                         {&_hook_MMU_INIT_END_start, &_hook_MMU_INIT_END_end},
                                                          {&_hook_BOOT_END_start, &_hook_BOOT_END_end}};
 
 err_code_ct call_static_hook_functions(static_hook_ct hook_point)

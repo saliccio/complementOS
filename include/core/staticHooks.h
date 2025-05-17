@@ -8,6 +8,7 @@ typedef enum static_hook
     BOOT_START,
     CORE_INIT_START,
     CORE_INIT_END,
+    MMU_INIT_END,
     BOOT_END,
     NUM_OF_STATIC_HOOKS
 } static_hook_ct;
@@ -16,6 +17,7 @@ typedef err_code_ct (*static_hook_0_arg_func_ct)();
 typedef static_hook_0_arg_func_ct BOOT_START_func_ct;
 typedef static_hook_0_arg_func_ct CORE_INIT_START_func_ct;
 typedef static_hook_0_arg_func_ct CORE_INIT_END_func_ct;
+typedef static_hook_0_arg_func_ct MMU_INIT_END_func_ct;
 typedef static_hook_0_arg_func_ct BOOT_END_func_ct;
 
 #define ATTACH_STATIC_HOOK(hook_point, function, priority)                                                             \

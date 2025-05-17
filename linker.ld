@@ -40,6 +40,10 @@ SECTIONS
         KEEP(SORT(*)(.hook_CORE_INIT_END_*))
         _hook_CORE_INIT_END_end = .;
 
+        _hook_MMU_INIT_END_start = .;
+        KEEP(SORT(*)(.hook_MMU_INIT_END_*))
+        _hook_MMU_INIT_END_end = .;
+
         _hook_BOOT_END_start = .;
         KEEP(SORT(*)(.hook_BOOT_END_*))
         _hook_BOOT_END_end = .;
@@ -55,7 +59,7 @@ SECTIONS
         _bss_end = .;
     }
 
-    .kernel_area : AT(ADDR(.kernel_area) - KERNEL_VMA)
+    .kernel_area ALIGN(4K) : AT(ADDR(.kernel_area) - KERNEL_VMA)
     {
         _kernel_area_start = .;
         . += KERNEL_AREA_SIZE;

@@ -15,7 +15,7 @@
 #include "pit.h"
 #include "stack.h"
 
-static atomic_ct initialized_cpu_count = 0;
+static atomic_ct next_cpu_id_to_initialize = 1;
 static spinlock_ct boot_spinlock;
 
 __attribute__((section(".text.start"), used)) void boot_main()
@@ -23,9 +23,9 @@ __attribute__((section(".text.start"), used)) void boot_main()
     err_code_ct ret = NO_ERROR;
     u32_ct running_core_id;
 
-    arch_atomic_increment(&initialized_cpu_count);
+    arch_atomic_increment(&next_cpu_id_to_initialize);
 
-    if (initialized_cpu_count == 1) // If the current core is the BSP
+    if (next_cpu_id_to_initialize == 2) // If the current core is the BSP
     {
         call_static_hook_functions(BOOT_START);
 

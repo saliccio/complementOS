@@ -5,12 +5,11 @@
 
 cli	 ; Temporarily disable interrupts until an IDT (interrupt descriptor table) for protected mode is set-up
 
-mov ebp, [STACK_BASE]
+mov ebp, [TEMP_STACK_BASE]
 mov esp, ebp  ; Move the stack pointer to an appropriate place
-mov ax, 0x1000
-add [STACK_BASE], ax  ; Move it upwards for the APs
 
 call disk_load   ; Load sectors from the disk
+call save_elf_start_address
 call a20_enable  ; Enable A20 line of the memory bus
 call switch_to_pm
 
@@ -46,8 +45,9 @@ call_main:
     mov gs, ax
     mov ss, ax
 
-    mov rax, [KERNEL_VIRTUAL_ADDRESS]
-    jmp rax
+    mov rax, [KERNEL_ENTRY_POINT]
+    mov rax, [rax]
+    call rax
     
 %include "readDisk.s"
 %include "longMode.s"
@@ -55,11 +55,13 @@ call_main:
 %include "a20.s"
 %include "gdt.s"
 %include "paging.s"
+%include "elf.s"
 
 AP_CODE_SEGMENT equ 0x800
-KERNEL_PHYSICAL_ADDRESS_SEGMENT equ 0x1000
-KERNEL_VIRTUAL_ADDRESS dq 0xFFFFFF8000010000
-STACK_BASE dw 0x99000
+KERNEL_PHYSICAL_ADDRESS_SEGMENT equ 0x900
+ELF_START_ADDRESS_PHYSICAL equ 0x9000
+KERNEL_ENTRY_POINT dq 0
+TEMP_STACK_BASE dw 0x7000
 
 times 510-($-$$) db 0  ; padding
 dw	0xaa55  ; valid boot indicator
@@ -70,10 +72,10 @@ dw	0xaa55  ; valid boot indicator
 ap_start:
     cli
 
-    mov ebp, [STACK_BASE]
+    mov ax, 0x280
+    add [TEMP_STACK_BASE], ax
+    mov ebp, [TEMP_STACK_BASE]
     mov esp, ebp
-    mov ax, 0x1000
-    add [STACK_BASE], ax
 
     lgdt [gdt_pointer]	; Load GDT (Global Descriptor Table) into the CPU
     mov eax, cr0

@@ -1,29 +1,33 @@
 ENTRY(boot_main)
 
-OUTPUT_FORMAT(binary)
+OUTPUT_FORMAT(elf64-x86-64)
 OUTPUT_ARCH(i386:x86-64)
 
-KERNEL_VMA = 0xFFFFFF8000000000;
+KERNEL_VMA_START = 0xFFFFFF8000000000 + 0x9000 + SIZEOF_HEADERS;
 KERNEL_AREA_SIZE = 10M;
+
+PHDRS
+{
+  text PT_LOAD FLAGS(5); /* R + X */
+  data PT_LOAD FLAGS(6); /* R + W */
+}
 
 SECTIONS
 {
-    . = 0x10000;
-
-    . += KERNEL_VMA;
+    . += KERNEL_VMA_START;
 
     _kernel_start = .;
     
-    .text : AT(ADDR(.text) - KERNEL_VMA)
+    .text : AT(ADDR(.text) - KERNEL_VMA_START)
     {
         _code = .;
         *(.text.start)
         *(.text)
         *(.rodata*)
         _code_end = .;
-    }
+    } :text
 
-    .data : AT(ADDR(.data) - KERNEL_VMA)
+    .data : AT(ADDR(.data) - KERNEL_VMA_START)
     {
         _data = .;
         *(.data)
@@ -49,22 +53,22 @@ SECTIONS
         _hook_BOOT_END_end = .;
 
         _data_end = .;
-    }
+    } :data
 
-    .bss : AT(ADDR(.bss) - KERNEL_VMA)
+    .bss : AT(ADDR(.bss) - KERNEL_VMA_START)
     {
         _bss = .;
         *(COMMON)
         *(.bss)
         _bss_end = .;
-    }
+    } :data
 
-    .kernel_area ALIGN(4K) : AT(ADDR(.kernel_area) - KERNEL_VMA)
+    .kernel_area ALIGN(4K) : AT(ADDR(.kernel_area) - KERNEL_VMA_START)
     {
         _kernel_area_start = .;
         . += KERNEL_AREA_SIZE;
         _kernel_area_end = .;
-    }
+    } :data
 
     _kernel_end = .;
 

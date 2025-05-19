@@ -17,19 +17,20 @@ DISK:=$(BIN)/disk.img
 DISK_SIZE:=10M
 DD:=dd
 IMAGE:=$(BIN)/image
-LINKED_BIN:=$(BIN)/linked.bin
+LINKED_BIN:=$(BIN)/linked.elf
 MODULES=arch drivers core libc
 TEST_MODULE=tests
 CINCLUDE:=-I$(CWD)/include
 TEST_DIRS=$(CWD)/include $(foreach mod, $(MODULES), $(wildcard $(CWD)/$(mod)/inc $(CWD)/$(mod)/*/inc))
 TEST_CINCLUDE=$(patsubst %, -I%, $(TEST_DIRS))
 
-# -g: Include debug information
-# -m64: Compile for 64 bits
-# -ffreestanding: No standard library
-# -nostdlib: No stdlib links by default
-# -fno-builtin: Avoid compile-time replacements for stdlib functions
-# -fno-pie: No position independent code (PIE)
+# -g: Include debug information.
+# -m64: Compile for 64 bits.
+# -ffreestanding: No standard library.
+# -nostdlib: No stdlib links by default.
+# -fno-builtin: Avoid compile-time replacements for stdlib functions.
+# -fno-pie: No position independent code (PIE).
+# -mcmodel=large: Place no memory restrictions on code or data. All accesses of code and data must be done with absolute addressing.
 CFLAGS=-g -m64 -ffreestanding -nostdlib -fno-builtin -nostartfiles -nodefaultlibs -fno-pic -mcmodel=large -Wall -DCORE_COUNT=$(CORE_COUNT)
 
 build_run_qemu: all run_qemu

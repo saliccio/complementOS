@@ -1,8 +1,8 @@
+#include "arch/ports.h"
 #include "bits.h"
 #include "core/staticHooks.h"
 #include "drivers/d_screen.h"
 #include "isr.h"
-#include <arch/ports.h>
 
 #define PIT_FREQ 1193180
 #define TICK_FREQ 100

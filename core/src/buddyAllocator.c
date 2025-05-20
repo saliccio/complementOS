@@ -1,7 +1,7 @@
 #include "buddyAllocator.h"
 #include "arch/bits.h"
+#include "core/kString.h"
 #include "drivers/d_screen.h"
-#include "kString.h"
 
 #define ORDER_TO_SIZE(order) (1 << (order + BUDDY_FIRST_ORDER_OFFSET))
 #define IS_ALIGNED(addr, alignment) (!((addr) & ((alignment)-1)))

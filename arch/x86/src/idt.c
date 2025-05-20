@@ -3,8 +3,9 @@
 #include "arch/ports.h"
 #include "bits.h"
 #include "gdt.h"
+#include "isr.h"
 #include "pic.h"
-#include <types.h>
+#include "types.h"
 
 static idt_entry_t idt[IDT_NO_OF_ENTRIES];
 static idt_ptr_t idt_ptr;

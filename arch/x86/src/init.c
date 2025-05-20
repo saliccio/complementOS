@@ -11,7 +11,6 @@
 #include "idt.h"
 #include "isr.h"
 #include "lapic.h"
-#include "paging.h"
 #include "pit.h"
 #include "stack.h"
 

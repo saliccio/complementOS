@@ -3,6 +3,7 @@ NASM=nasm
 NDISASM=ndisasm
 GDB=gdb
 LD=ld
+CORE_COUNT=4
 QEMU=qemu-system-x86_64
 QEMU_IMG=qemu-img
 BOCHS=bochs
@@ -10,14 +11,13 @@ BX_IMG=bximage
 LD_SETTINGS=linker.ld
 GDB_ADDRESS=localhost:1234
 ARCH=x86
-CORE_COUNT=4
 CWD:=$(shell pwd)
 BIN:=$(shell realpath bin)
 DISK:=$(BIN)/disk.img
 DISK_SIZE:=10M
 DD:=dd
 IMAGE:=$(BIN)/image
-LINKED_BIN:=$(BIN)/linked.elf
+LINKED_BIN:=$(BIN)/kernel.elf
 MODULES=arch drivers core libc
 TEST_MODULE=tests
 CINCLUDE:=-I$(CWD)/include
@@ -33,8 +33,12 @@ TEST_CINCLUDE=$(patsubst %, -I%, $(TEST_DIRS))
 # -mcmodel=large: Place no memory restrictions on code or data. All accesses of code and data must be done with absolute addressing.
 CFLAGS=-g -m64 -ffreestanding -nostdlib -fno-builtin -nostartfiles -nodefaultlibs -fno-pic -mcmodel=large -Wall -DCORE_COUNT=$(CORE_COUNT)
 
+QEMU_ARGS:=-drive format=raw,file=$(DISK),if=ide -boot a -monitor stdio -smp cores=$(CORE_COUNT) -s
+
 build_run_qemu: all run_qemu
+build_debug_qemu: all debug_qemu
 build_run_tests_qemu: test run_qemu
+build_debug_tests_qemu: test debug_qemu
 
 build_run_bochs: all run_bochs
 build_run_tests_bochs: test run_bochs
@@ -46,13 +50,14 @@ test: clean build_modules_in_test_mode $(IMAGE)
 all: clean build_modules $(IMAGE)
 
 # Run the OS via QEMU
-run_qemu:
-	$(QEMU_IMG) create -f raw $(DISK) $(DISK_SIZE)
-	$(DD) if=$(IMAGE) of=$(DISK) conv=notrunc
-	$(QEMU) -drive format=raw,file=$(DISK),if=ide -boot a -monitor stdio -s -smp cores=$(CORE_COUNT)
+run_qemu: $(IMAGE)
+	$(QEMU) $(QEMU_ARGS)
+
+debug_qemu: $(IMAGE)
+	$(QEMU) $(QEMU_ARGS) -S
 
 # Run the OS via Bochs
-run_bochs:
+run_bochs: $(IMAGE)
 	$(BX_IMG) -func=create -q -hd=$(DISK_SIZE) -imgmode=flat $(DISK)
 	$(DD) if=$(IMAGE) of=$(DISK) conv=notrunc
 	$(BOCHS)
@@ -61,6 +66,8 @@ run_bochs:
 $(IMAGE):
 	$(LD) -T $(LD_SETTINGS) -o $(LINKED_BIN) $(BIN)/*/*.o
 	cat $(wildcard $(BIN)/*/*.bin) $(LINKED_BIN) > $@
+	$(QEMU_IMG) create -f raw $(DISK) $(DISK_SIZE)
+	$(DD) if=$(IMAGE) of=$(DISK) conv=notrunc
 
 build_modules:
 	mkdir -p $(BIN)
@@ -77,14 +84,3 @@ clean:
 # Disassemble OS image (for debugging)
 image.dis: $(IMAGE)
 	$(NDISASM) -b 64 $< > $@
-	
-# Start QEMU, then GDB to debug
-debug: debug_qemu debug_gdb
-
-# Start QEMU held ready waiting for GDB (-S flag)
-debug_qemu: $(IMAGE)
-	$(QEMU) -S -fda $<
-
-# Start GDB to debug
-debug_gdb: $(IMAGE)
-	$(GDB) -ex "target remote $(GDB_ADDRESS)" -ex "symbol-file bin/image"

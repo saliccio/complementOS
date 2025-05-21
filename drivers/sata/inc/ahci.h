@@ -4,16 +4,18 @@
 
 #define NUMBER_OF_PORTS 32
 
-#define SATA_SIG_ATA 0x00000101   // SATA drive
-#define SATA_SIG_ATAPI 0xEB140101 // SATAPI drive
-#define SATA_SIG_SEMB 0xC33C0101  // Enclosure management bridge
-#define SATA_SIG_PM 0x96690101    // Port multiplier
-
 #define AHCI_DEV_NULL 0
 #define AHCI_DEV_SATA 1
-#define AHCI_DEV_SEMB 2
-#define AHCI_DEV_PM 3
-#define AHCI_DEV_SATAPI 4
+#define AHCI_DEV_SATAPI 2
+#define AHCI_DEV_SEMB 3
+#define AHCI_DEV_PM 4
+
+#define AHCI_CMD_LIST_SIZE 1024
+#define AHCI_FIS_SIZE 256
+#define AHCI_CMD_TABLE_SIZE 4096 // Per command slot
+#define AHCI_PRDT_ENTRIES 8
+#define AHCI_MAX_PORTS 32
+#define AHCI_MAX_COMMANDS 32
 
 #define HBA_PORT_IPM_ACTIVE 1
 #define HBA_PORT_DET_PRESENT 3
@@ -22,6 +24,25 @@
 #define HBA_PxCMD_FRE 0x0010
 #define HBA_PxCMD_FR 0x4000
 #define HBA_PxCMD_CR 0x8000
+
+#define PCI_CLASS_MASS_STORAGE 0x01
+#define PCI_SUBCLASS_SATA 0x06
+#define PCI_INTERFACE_AHCI 0x01
+
+#define HBA_PORT_DET_PRESENT 0x3
+#define HBA_PORT_IPM_ACTIVE 0x1
+#define HBA_PxCMD_ST (1 << 0)
+#define HBA_PxCMD_FRE (1 << 4)
+#define HBA_PxCMD_FR (1 << 14)
+#define HBA_PxCMD_CR (1 << 15)
+
+#define SATA_SIG_ATAPI 0xEB140101
+#define SATA_SIG_SEMB 0xC33C0101
+#define SATA_SIG_PM 0x96690101
+#define SATA_SIG_ATA 0x00000101
+
+#define ATA_CMD_READ_DMA_EX 0x25
+#define ATA_CMD_WRITE_DMA_EX 0x35
 
 // AHCI Port Registers
 typedef struct

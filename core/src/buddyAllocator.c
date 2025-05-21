@@ -6,7 +6,6 @@
 #define ORDER_TO_SIZE(order) (1 << (order + BUDDY_FIRST_ORDER_OFFSET))
 #define IS_ALIGNED(addr, alignment) (!((addr) & ((alignment)-1)))
 #define POINTER_TO_ULONG(addr) ((size_ct)(addr))
-#define IN_USE_FLAG (1)
 
 static inline u32_ct size_to_order(size_ct size)
 {
@@ -110,7 +109,7 @@ addr_ct buddy_alloc(buddy_pool_ct *pool, size_ct size)
         return NULL;
     }
 
-    allocated_block->size |= IN_USE_FLAG;
+    allocated_block->size |= BUDDY_IN_USE_FLAG;
     pool->free_lists[order] = allocated_block->next_free_block;
     if (NULL != pool->free_lists[order])
     {
@@ -136,7 +135,7 @@ static void merge_blocks(buddy_pool_ct *pool, buddy_block_ct *block, size_ct blo
     while (order <= BUDDY_MAX_ORDER)
     {
         buddy_block_ct *buddy_block = (buddy_block_ct *)(POINTER_TO_ULONG((addr_ct)block) ^ (block_size));
-        if (order == BUDDY_MAX_ORDER || (buddy_block->size & IN_USE_FLAG) || (buddy_block->size != block_size))
+        if (order == BUDDY_MAX_ORDER || (buddy_block->size & BUDDY_IN_USE_FLAG) || (buddy_block->size != block_size))
         {
             add_into_list(&pool->free_lists[order], block);
             block->size = block_size;
@@ -177,12 +176,12 @@ void buddy_free(buddy_pool_ct *pool, addr_ct addr)
 
     buddy_block_ct *block = (buddy_block_ct *)((s8_ct *)addr - sizeof(buddy_block_header_ct));
 
-    if (!(block->size & IN_USE_FLAG)) // Check if it is a double-free
+    if (!(block->size & BUDDY_IN_USE_FLAG)) // Check if it is a double-free
     {
         return;
     }
 
-    block->size &= ~IN_USE_FLAG;
+    block->size &= ~BUDDY_IN_USE_FLAG;
     pool->total_used -= block->size;
     merge_blocks(pool, block, block->size);
 }

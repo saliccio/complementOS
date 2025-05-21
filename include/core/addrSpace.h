@@ -5,7 +5,7 @@
 #include "errCodes.h"
 
 #define KERNEL_VIRT_ADDR_SPACE_START 0xFFFFFF8000000000
-#define KERNELIZED_ADDR(addr) (KERNEL_VIRT_ADDR_SPACE_START + addr)
+#define KERNELIZED_ADDR(addr) (KERNEL_VIRT_ADDR_SPACE_START + (addr_ct)addr)
 
 typedef struct virt_mem_info
 {

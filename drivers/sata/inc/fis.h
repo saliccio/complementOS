@@ -6,7 +6,7 @@
 
 #include "types.h"
 
-typedef enum
+typedef enum fis_type
 {
     FIS_TYPE_REG_H2D = 0x27,   // Register FIS - host to device
     FIS_TYPE_REG_D2H = 0x34,   // Register FIS - device to host
@@ -18,7 +18,7 @@ typedef enum
     FIS_TYPE_DEV_BITS = 0xA1,  // Set device bits FIS - device to host
 } fis_type_ct;
 
-typedef struct
+typedef struct fis_reg_host2dev
 {
     // DWORD 0
     u8_ct fis_type; // FIS_TYPE_REG_H2D
@@ -52,7 +52,7 @@ typedef struct
     u8_ct reserved1[4]; // Reserved
 } fis_reg_host2dev_ct;
 
-typedef struct
+typedef struct fis_reg_dev2host
 {
     // DWORD 0
     u8_ct fis_type; // FIS_TYPE_REG_D2H
@@ -86,7 +86,7 @@ typedef struct
     u8_ct reserved4[4]; // Reserved
 } fis_reg_dev2host_ct;
 
-typedef struct
+typedef struct fis_data
 {
     // DWORD 0
     u8_ct fis_type; // FIS_TYPE_DATA
@@ -100,7 +100,7 @@ typedef struct
     u32_ct data[1]; // Payload
 } fis_data_ct;
 
-typedef struct
+typedef struct fis_pio_setup
 {
     // DWORD 0
     u8_ct fis_type; // FIS_TYPE_PIO_SETUP
@@ -137,7 +137,7 @@ typedef struct
     u8_ct reserved4[2]; // Reserved
 } fis_pio_setup_ct;
 
-typedef struct
+typedef struct fis_dma_setup
 {
     // DWORD 0
     u8_ct fis_type; // FIS_TYPE_DMA_SETUP
@@ -168,7 +168,7 @@ typedef struct
     u32_ct reserved3; // Reserved
 } fis_dma_setup_ct;
 
-typedef struct
+typedef struct fis_dev_bits
 {
     // DWORD 0
     u8_ct fis_type; // FIS_TYPE_DEV_BITS
@@ -186,7 +186,7 @@ typedef struct
     u8_ct error;
 } fis_dev_bits_ct;
 
-typedef volatile struct
+typedef volatile struct hba_fis
 {
     // 0x00
     fis_dma_setup_ct dsfis; // DMA Setup FIS
@@ -208,4 +208,4 @@ typedef volatile struct
 
     // 0xA0
     u8_ct reserved0[0x100 - 0xA0];
-} HBA_FIS;
+} hba_fis_ct;

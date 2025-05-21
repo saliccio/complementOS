@@ -19,6 +19,8 @@
  */
 #define BUDDY_MAX_BLOCK_SIZE ((1 << (BUDDY_MAX_ORDER + BUDDY_FIRST_ORDER_OFFSET)))
 
+#define BUDDY_IN_USE_FLAG (1)
+
 typedef size_ct buddy_block_header_ct;
 
 typedef struct buddy_block

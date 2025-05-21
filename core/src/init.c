@@ -15,7 +15,7 @@ static bool_ct init_mem()
 {
     // Must init kheap first:
     addr_ct heap_start = (addr_ct)ALIGN_UP_TO((size_ct)&_kernel_area_start, BUDDY_MAX_BLOCK_SIZE);
-    vga_printf("heap_start=%p\n", heap_start);
+    vga_printf("Kernel Heap Start Address = %p\n", heap_start);
 
     bool_ct ret = kheap_init(heap_start);
     if (!ret)

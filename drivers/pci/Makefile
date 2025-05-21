@@ -1,3 +1,3 @@
 include ../../common.mk
 
-all:
+all: $(C_OBJS)

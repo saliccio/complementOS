@@ -33,7 +33,7 @@ TEST_CINCLUDE=$(patsubst %, -I%, $(TEST_DIRS))
 # -mcmodel=large: Place no memory restrictions on code or data. All accesses of code and data must be done with absolute addressing.
 CFLAGS=-g -m64 -ffreestanding -nostdlib -fno-builtin -nostartfiles -nodefaultlibs -fno-pic -mcmodel=large -Wall -DCORE_COUNT=$(CORE_COUNT)
 
-QEMU_ARGS:=-drive format=raw,file=$(DISK),if=ide -boot a -monitor stdio -smp cores=$(CORE_COUNT) -s
+QEMU_ARGS:=-drive id=disk,file=$(DISK),if=none -device ahci,id=ahci -device ide-hd,drive=disk,bus=ahci.0 -monitor stdio -smp cores=$(CORE_COUNT) -s
 
 build_run_qemu: all run_qemu
 build_debug_qemu: all debug_qemu

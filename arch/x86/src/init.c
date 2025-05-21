@@ -55,8 +55,6 @@ __attribute__((section(".text.start"), used)) void boot_main()
         smp_init_lock(&boot_spinlock);
 
         lapic_start_aps();
-
-        call_static_hook_functions(BOOT_END);
     }
     else
     {
@@ -65,26 +63,17 @@ __attribute__((section(".text.start"), used)) void boot_main()
         lapic_enable();
     }
 
+    ASM("sti"); // Enable interrupts again
+
     running_core_id = smp_get_core_id();
 
     smp_lock(&boot_spinlock);
-
-    addr_ct stack_base = mem_area_alloc_with_alignment(KSTACK_SIZE, 0x1000);
-    ret = mem_map(mem_get_kernel_mem_info(), stack_base - KSTACK_SIZE, KSTACK_SIZE / PAGE_SIZE, READ_WRITE);
-
-    if (NO_ERROR != ret && ALREADY_MAPPED != ret)
+    if (0 == running_core_id)
     {
-        vga_printf("An error occurred while mapping the stack of core %d!\n", running_core_id);
-        while (1)
-        {
-        }
+        call_static_hook_functions(BOOT_END);
     }
-
-    vga_printf("Core %d initialized.\n", running_core_id);
-
+    addr_ct stack_base = mem_area_alloc_with_alignment(KSTACK_SIZE, 0x1000);
     smp_unlock(&boot_spinlock);
-
-    ASM("sti"); // Enable interrupts again
 
     run_func_with_stack(stack_base, core_entry, NULL);
 }

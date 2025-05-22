@@ -15,7 +15,7 @@ addr_ct kmalloc(size_ct size)
 
 addr_ct kmalloc_without_header(size_ct size)
 {
-    addr_ct addr = kmalloc(size);
+    addr_ct addr = kmalloc(size - sizeof(buddy_block_header_ct));
     if (NULL == addr)
     {
         return addr;

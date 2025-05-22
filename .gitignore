@@ -8,3 +8,4 @@ image
 bochs_log.txt
 qemu_log.txt
 dump
+objdump.txt

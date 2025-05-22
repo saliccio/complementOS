@@ -3,6 +3,7 @@ NASM=nasm
 NDISASM=ndisasm
 GDB=gdb
 LD=ld
+OBJDUMP=objdump
 CORE_COUNT=4
 QEMU=qemu-system-x86_64
 QEMU_IMG=qemu-img
@@ -84,3 +85,6 @@ clean:
 # Disassemble OS image (for debugging)
 image.dis: $(IMAGE)
 	$(NDISASM) -b 64 $< > $@
+
+objdump: $(LINKED_BIN)
+	$(OBJDUMP) -x $^ > $@.txt

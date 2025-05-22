@@ -45,8 +45,7 @@ call_main:
     mov gs, ax
     mov ss, ax
 
-    mov rax, [KERNEL_ENTRY_POINT]
-    mov rax, [rax]
+    mov rax, [ELF_JUMP_ADDRESS_FIELD]
     call rax
     
 %include "readDisk.s"
@@ -59,8 +58,8 @@ call_main:
 
 AP_CODE_SEGMENT equ 0x800
 KERNEL_PHYSICAL_ADDRESS_SEGMENT equ 0x900
-ELF_START_ADDRESS_PHYSICAL equ 0x9000
-KERNEL_ENTRY_POINT dq 0
+ELF_START_ADDRESS equ 0x9000
+ELF_JUMP_ADDRESS_FIELD equ 0x9018
 TEMP_STACK_BASE dw 0x7000
 
 times 510-($-$$) db 0  ; padding

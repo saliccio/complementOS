@@ -11,6 +11,7 @@ typedef struct page_map_info page_map_info_ct;
 #define PTE_FLAG_PWT (1 << 3)
 #define PTE_FLAG_PCD (1 << 4)
 #define PTE_FLAG_ACCESSED (1 << 5)
+#define PTE_FLAG_XD (1 << 63)
 #define PTE_ADDR_MASK 0x000FFFFFFFFFF000ULL
 
 #define PAGE_SIZE 4096

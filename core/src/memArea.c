@@ -1,9 +1,9 @@
 #include "core/memArea.h"
 #include "core/ffAllocator.h"
 #include "core/kernelHeap.h"
-#include "ld.h"
+#include "core/ld.h"
 
-static firstfit_pool_ct mem_area_pool;
+SECTION(".data") static firstfit_pool_ct mem_area_pool;
 
 bool_ct mem_area_init()
 {

@@ -7,5 +7,6 @@ typedef enum err_code
     BAD_MEMORY,
     BAD_PARAM,
     ALREADY_MAPPED,
-    INIT_ERROR
+    INIT_ERROR,
+    NOT_SUPPORTED
 } err_code_ct;

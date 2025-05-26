@@ -2,13 +2,14 @@
 #include "core/addrSpace.h"
 #include "core/kString.h"
 #include "core/kernelHeap.h"
+#include "core/ld.h"
 #include "core/staticHooks.h"
 #include "drivers/d_screen.h"
 #include "drivers/pci.h"
 #include "fis.h"
 
-static volatile hba_mem_regs_ct *abar;
-static volatile hba_port_regs_ct *main_sata_port = 0x1;
+SECTION(".data") static volatile hba_mem_regs_ct *abar;
+SECTION(".data") static volatile hba_port_regs_ct *main_sata_port;
 
 static u32_ct check_port_type(hba_port_regs_ct *port)
 {
@@ -116,7 +117,7 @@ static err_code_ct init_ports(hba_mem_regs_ct *abar)
             {
                 vga_printf("SATA drive found at port %d\n", i);
 
-                if (0x1 == main_sata_port)
+                if (NULL == main_sata_port)
                 {
                     main_sata_port = port;
                     vga_printf("Port %d will be used for the main SATA disk.\n", i);
@@ -163,7 +164,8 @@ static u32_ct find_cmd_slot(hba_port_regs_ct *port)
     return -1; // No free slot
 }
 
-static err_code_ct ahci_rw(hba_port_regs_ct *port, u64_ct start_lba, u32_ct count, addr_ct buffer, bool_ct is_write)
+static inline err_code_ct ahci_rw_inner(hba_port_regs_ct *port, u64_ct start_lba, u32_ct count, addr_ct buffer,
+                                        bool_ct is_write)
 {
     port->is = (u32_ct)-1; // Clear pending interrupt bits
 
@@ -230,6 +232,11 @@ static err_code_ct ahci_rw(hba_port_regs_ct *port, u64_ct start_lba, u32_ct coun
     return NO_ERROR; // Success
 }
 
+err_code_ct ahci_rw_main_disk(u64_ct start_lba, u32_ct count, addr_ct buffer, bool_ct is_write)
+{
+    return ahci_rw_inner(main_sata_port, start_lba, count, buffer, is_write);
+}
+
 static err_code_ct ahci_init()
 {
     err_code_ct ret = INIT_ERROR;
@@ -249,7 +256,8 @@ static err_code_ct ahci_init()
                 {
                     u32_ct tmp_abar = pci_config_read(bus, slot, func, 0x24); // BAR5
                     abar = (hba_mem_regs_ct *)(tmp_abar & ~0xF);              // Clear bottom bits
-                    ret = mem_map_to_phys_addr(mem_get_kernel_mem_info(), KERNELIZED_ADDR(abar), abar, 1, READ_WRITE);
+                    ret = mem_map_to_phys_addr(mem_get_kernel_mem_info(), KERNELIZED_ADDR(abar), abar, 1,
+                                               PTE_READ_WRITE | PTE_UNCACHEABLE);
                     if (NO_ERROR != ret && ALREADY_MAPPED != ret)
                     {
                         return INIT_ERROR;
@@ -264,8 +272,6 @@ static err_code_ct ahci_init()
                         return ret;
                     }
 
-                    ret = ahci_rw(main_sata_port, (64 * 1024 / 512), 256, (0x9000 + (64 * 1024)), FALSE);
-
                     return ret;
                 }
             }
@@ -275,4 +281,4 @@ static err_code_ct ahci_init()
     return INIT_ERROR;
 }
 
-ATTACH_STATIC_HOOK(BOOT_END, ahci_init, 90);
+ATTACH_STATIC_HOOK(MMU_INIT_END, ahci_init, 99);

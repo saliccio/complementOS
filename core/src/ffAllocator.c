@@ -1,12 +1,7 @@
 #include "core/ffAllocator.h"
+#include "bits.h"
 #include "core/kernelHeap.h"
 #include "drivers/d_screen.h"
-
-#define PTR_TO_SIZE(pointer) ((size_ct)(pointer))
-
-#define IS_ADDR_ALIGNED(addr, alignment) (0 == (PTR_TO_SIZE(addr) & ((alignment)-1)))
-
-#define ALIGN_UP_TO(addr, alignment) ((addr_ct)((PTR_TO_SIZE(addr) + (alignment)-1) & ~((alignment)-1)))
 
 #define IS_BETWEEN(value, min, max) ((value) > (min) && (value) < (max))
 
@@ -188,7 +183,7 @@ static inline addr_ct alloc_common(firstfit_pool_ct *pool, ffit_alloc_constraint
             addr_ct aligned_start = start_addr;
             if (constraint == ALIGNMENT)
             {
-                aligned_start = ALIGN_UP_TO(curr_block->start, alignment);
+                aligned_start = ALIGN_UP_TO_ADDR(curr_block->start, alignment);
             }
 
             size_ct right_offset =

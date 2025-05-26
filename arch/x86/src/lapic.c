@@ -1,6 +1,7 @@
 #include "lapic.h"
 #include "arch/asm.h"
 #include "core/addrSpace.h"
+#include "core/ld.h"
 #include "drivers/d_screen.h"
 #include "mmu.h"
 #include "pit.h"
@@ -44,8 +45,8 @@
 
 #define AP_BOOT_VECTOR 0x8
 
-static addr_ct apic_base_addr;
-static u32_ct no_of_cpus_started;
+SECTION(".data") static addr_ct apic_base_addr;
+SECTION(".data") static u32_ct no_of_cpus_started;
 
 static inline u64_ct read_msr(u32_ct msr_id)
 {
@@ -88,8 +89,8 @@ err_code_ct lapic_init()
     apic_base_addr = (u32_ct)(apic_msr & APIC_BASE_ADDR_MASK);
     vga_printf("APIC Base Address = %p\n", apic_base_addr);
 
-    ret =
-        mem_map_to_phys_addr(mem_get_kernel_mem_info(), KERNELIZED_ADDR(apic_base_addr), apic_base_addr, 1, READ_WRITE);
+    ret = mem_map_to_phys_addr(mem_get_kernel_mem_info(), KERNELIZED_ADDR(apic_base_addr), apic_base_addr, 1,
+                               PTE_READ_WRITE | PTE_UNCACHEABLE);
 
     if (NO_ERROR != ret)
     {

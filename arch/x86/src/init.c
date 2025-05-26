@@ -14,17 +14,13 @@
 #include "pit.h"
 #include "stack.h"
 
-static atomic_ct next_cpu_id_to_initialize = 1;
 static spinlock_ct boot_spinlock;
 
-__attribute__((section(".text.start"), used)) void boot_main()
+__attribute__((section(".text.start"), used)) void boot_main(u8_ct cpu_index)
 {
     err_code_ct ret = NO_ERROR;
-    u32_ct running_core_id;
 
-    arch_atomic_increment(&next_cpu_id_to_initialize);
-
-    if (next_cpu_id_to_initialize == 2) // If the current core is the BSP
+    if (cpu_index == 0) // If the current core is the BSP
     {
         call_static_hook_functions(BOOT_START);
 
@@ -65,7 +61,7 @@ __attribute__((section(".text.start"), used)) void boot_main()
 
     ASM("sti"); // Enable interrupts again
 
-    running_core_id = smp_get_core_id();
+    u32_ct running_core_id = smp_get_core_id();
 
     smp_lock(&boot_spinlock);
     if (0 == running_core_id)
@@ -74,6 +70,9 @@ __attribute__((section(".text.start"), used)) void boot_main()
     }
     addr_ct stack_base = mem_area_alloc_with_alignment(KSTACK_SIZE, 0x1000);
     smp_unlock(&boot_spinlock);
+
+    while (1)
+        ;
 
     run_func_with_stack(stack_base, core_entry, NULL);
 }

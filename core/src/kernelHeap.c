@@ -1,7 +1,8 @@
 #include "core/kernelHeap.h"
 #include "buddyAllocator.h"
+#include "core/ld.h"
 
-static buddy_pool_ct kheap_pool;
+SECTION(".data") static buddy_pool_ct kheap_pool;
 
 bool_ct kheap_init(addr_ct start)
 {

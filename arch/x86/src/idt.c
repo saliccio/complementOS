@@ -2,13 +2,14 @@
 #include "arch/asm.h"
 #include "arch/ports.h"
 #include "bits.h"
+#include "core/ld.h"
 #include "gdt.h"
 #include "isr.h"
 #include "pic.h"
 #include "types.h"
 
-static idt_entry_t idt[IDT_NO_OF_ENTRIES];
-static idt_ptr_t idt_ptr;
+SECTION(".data") static idt_entry_t idt[IDT_NO_OF_ENTRIES];
+SECTION(".data") static idt_ptr_t idt_ptr;
 
 static void idt_assign_isr(int interrupt_no, u64_ct address, u8_ct flags)
 {

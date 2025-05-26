@@ -7,6 +7,7 @@
 #include "core/ffAllocator.h"
 #include "core/kString.h"
 #include "core/kernelHeap.h"
+#include "core/ld.h"
 #include "core/memArea.h"
 #include "core/smp.h"
 #include "core/staticHooks.h"
@@ -15,9 +16,9 @@
 #include "mmu.h"
 #include "types.h"
 
-static page_map_info_ct kernel_context;
-static firstfit_pool_ct mmu_mem_pool;
-static spinlock_ct spin;
+SECTION(".data") static page_map_info_ct kernel_context;
+SECTION(".data") static firstfit_pool_ct mmu_mem_pool;
+SECTION(".data") static spinlock_ct spin;
 
 static void page_fault_handler(isr_registers_ct *registers)
 {

@@ -15,8 +15,12 @@ typedef struct virt_mem_info
 
 typedef enum map_flags
 {
-    READ_WRITE,
-    USER
+    PTE_READ_WRITE = 0x0,
+    PTE_USER = 0x1,
+    PTE_WRITE_THROUGH = 0x2,
+    PTE_UNCACHEABLE = 0x4,
+    PTE_EXEC_DISABLED = 0x8,
+    FORCE_IF_ALREADY_MAPPED = 0x10
 } map_flags_ct;
 
 virt_mem_info_ct *mem_get_kernel_mem_info();

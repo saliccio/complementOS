@@ -46,6 +46,8 @@ call_main:
     mov ss, ax
 
     mov rax, [ELF_JUMP_ADDRESS_FIELD]
+    mov rdi, [CPU_INDEX]
+    add [CPU_INDEX], byte 1
     call rax
     
 %include "readDisk.s"
@@ -61,6 +63,7 @@ KERNEL_PHYSICAL_ADDRESS_SEGMENT equ 0x900
 ELF_START_ADDRESS equ 0x9000
 ELF_JUMP_ADDRESS_FIELD equ 0x9018
 TEMP_STACK_BASE dw 0x7000
+CPU_INDEX db 0
 
 times 510-($-$$) db 0  ; padding
 dw	0xaa55  ; valid boot indicator

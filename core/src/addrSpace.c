@@ -2,12 +2,12 @@
 #include "arch/mmu.h"
 #include "core/addrSpace.h"
 #include "core/kernelHeap.h"
+#include "core/ld.h"
 #include "core/staticHooks.h"
 #include "drivers/d_screen.h"
-#include "ld.h"
 
-static virt_mem_info_ct kernel_mem_info;
-static firstfit_pool_ct physical_addr_space;
+SECTION(".data") static virt_mem_info_ct kernel_mem_info;
+SECTION(".data") static firstfit_pool_ct physical_addr_space;
 
 err_code_ct mem_init_kernel_addr_space()
 {
@@ -40,22 +40,33 @@ static inline err_code_ct map_inner(virt_mem_info_ct *mem_info, addr_ct virt_add
 
     addr_ct ret_virt_addr = firstfit_alloc_with_start_addr(&mem_info->virt_addr_space, size, virt_addr);
     err_code_ct ret = NO_ERROR;
-    if (NULL == ret_virt_addr)
+    if (NULL == ret_virt_addr && !(flags & FORCE_IF_ALREADY_MAPPED))
     {
         ret = ALREADY_MAPPED;
     }
     else
     {
         u32_ct mmu_flags = 0;
-        if ((flags & READ_WRITE))
+        if ((flags & PTE_READ_WRITE))
         {
             mmu_flags |= PTE_FLAG_READ_WRITE;
         }
-        if (flags & USER)
+        if (flags & PTE_USER)
         {
             mmu_flags |= PTE_FLAG_USER;
         }
-
+        if (flags & PTE_WRITE_THROUGH)
+        {
+            mmu_flags |= PTE_FLAG_PWT;
+        }
+        if (flags & PTE_UNCACHEABLE)
+        {
+            mmu_flags |= PTE_FLAG_PCD;
+        }
+        if (flags & PTE_EXEC_DISABLED)
+        {
+            mmu_flags |= PTE_FLAG_XD;
+        }
         ret = mmu_map_memory(mem_info->context, virt_addr, physical_addr, page_count, mmu_flags);
     }
 
@@ -95,9 +106,10 @@ err_code_ct mem_map(virt_mem_info_ct *mem_info, addr_ct virt_addr, size_ct page_
 
     size_ct size = page_count * PAGE_SIZE;
     addr_ct physical_addr = firstfit_alloc_with_alignment(&physical_addr_space, size, PAGE_SIZE);
-    if (NULL != firstfit_get_first_free_address(&physical_addr_space) && NULL == physical_addr)
+    if (!(flags & FORCE_IF_ALREADY_MAPPED) &&
+        (NULL != firstfit_get_first_free_address(&physical_addr_space) && NULL == physical_addr))
     {
-        return NO_MEMORY;
+        return ALREADY_MAPPED;
     }
     else
     {
@@ -133,7 +145,7 @@ static err_code_ct make_kernel_mappings()
     }
     else
     {
-        mem_map_to_phys_addr(&kernel_mem_info, (addr_ct)KERNEL_VIRT_ADDR_SPACE_START, (addr_ct)0, 1024, READ_WRITE);
+        mem_map_to_phys_addr(&kernel_mem_info, (addr_ct)KERNEL_VIRT_ADDR_SPACE_START, (addr_ct)0, 1024, PTE_READ_WRITE);
 
         if (NO_ERROR == ret)
         {
@@ -144,7 +156,7 @@ static err_code_ct make_kernel_mappings()
             if (unmapped_kernel_area_right_offset > 0 && unmapped_kernel_area_right_offset < (size_ct)&_kernel_area_end)
             {
                 ret = mem_map(&kernel_mem_info, first_free_virt_addr, unmapped_kernel_area_right_offset / PAGE_SIZE,
-                              READ_WRITE);
+                              PTE_READ_WRITE);
             }
         }
     }
@@ -152,4 +164,4 @@ static err_code_ct make_kernel_mappings()
     return ret;
 }
 
-ATTACH_STATIC_HOOK(MMU_INIT_END, make_kernel_mappings, 90);
+// ATTACH_STATIC_HOOK(MMU_INIT_END, make_kernel_mappings, 90);

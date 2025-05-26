@@ -3,22 +3,29 @@ ENTRY(boot_main)
 OUTPUT_FORMAT(elf64-x86-64)
 OUTPUT_ARCH(i386:x86-64)
 
-KERNEL_VMA_START = 0xFFFFFF8000000000 + 0x9000 + SIZEOF_HEADERS;
+PAGE_SIZE = 4096;
+
+KERNEL_VMA = 0xFFFFFF8000009000 + SIZEOF_HEADERS;
+KERNEL_LMA = 0x9000 + SIZEOF_HEADERS;
+VIRT_OFFSET = KERNEL_VMA - KERNEL_LMA;
+
 KERNEL_AREA_SIZE = 10M;
+
+TEMP_ELF_LOAD_AREA_SIZE = 1M;
 
 PHDRS
 {
-  text PT_LOAD FLAGS(5); /* R + X */
-  data PT_LOAD FLAGS(6); /* R + W */
+  text         PT_LOAD FLAGS(5); /* R + X */
+  data         PT_LOAD FLAGS(6); /* R + W */
+  bss          PT_LOAD FLAGS(6); /* R + W */
+  kernel_area  PT_NULL FLAGS(6); /* R + W */
 }
 
 SECTIONS
 {
-    . += KERNEL_VMA_START;
-
-    _kernel_start = .;
+    . = KERNEL_VMA;
     
-    .text : AT(ADDR(.text) - KERNEL_VMA_START)
+    .text : AT(ADDR(.text) - VIRT_OFFSET)
     {
         _code = .;
         *(.text.start)
@@ -27,7 +34,7 @@ SECTIONS
         _code_end = .;
     } :text
 
-    .data : AT(ADDR(.data) - KERNEL_VMA_START)
+    .data ALIGN(PAGE_SIZE) : AT(ALIGN(ADDR(.data) - VIRT_OFFSET, PAGE_SIZE))
     {
         _data = .;
         *(.data)
@@ -55,22 +62,24 @@ SECTIONS
         _data_end = .;
     } :data
 
-    .bss : AT(ADDR(.bss) - KERNEL_VMA_START)
+    .bss ALIGN(PAGE_SIZE): AT(ALIGN(ADDR(.bss) - VIRT_OFFSET, PAGE_SIZE))
     {
         _bss = .;
         *(COMMON)
         *(.bss)
         _bss_end = .;
-    } :data
+    } :bss
 
-    .kernel_area ALIGN(4K) : AT(ADDR(.kernel_area) - KERNEL_VMA_START)
+    _temp_elf_load_area_start = .;
+    . += TEMP_ELF_LOAD_AREA_SIZE;
+    _temp_elf_load_area_end = .;
+
+    .kernel_area ALIGN(PAGE_SIZE) : AT(ALIGN(ADDR(.kernel_area) - VIRT_OFFSET, PAGE_SIZE))
     {
         _kernel_area_start = .;
         . += KERNEL_AREA_SIZE;
         _kernel_area_end = .;
-    } :data
-
-    _kernel_end = .;
+    } :kernel_area
 
     /DISCARD/ :
     {

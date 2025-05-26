@@ -1,4 +1,5 @@
 #include "arch/isr.h"
+#include "core/ld.h"
 #include "drivers/d_screen.h"
 #include "idt.h"
 #include "lapic.h"
@@ -6,7 +7,7 @@
 #include <arch/ports.h>
 #include <libc/conversions.h>
 
-static isr_handler_ct isr_handlers[IDT_NO_OF_ENTRIES];
+SECTION(".data") static isr_handler_ct isr_handlers[IDT_NO_OF_ENTRIES];
 
 void isr_set_handler(u8_ct int_no, isr_handler_ct handler)
 {

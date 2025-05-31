@@ -34,6 +34,7 @@
 #define EXC29 29
 #define EXC30 30
 #define EXC31 31
+#define EXC32 48
 #define EXCVEC_PAGEFAULT 14
 
 // Low-level exception handler entries
@@ -69,6 +70,7 @@ extern void _exc28();
 extern void _exc29();
 extern void _exc30();
 extern void _exc31();
+extern void _exc32();
 extern void _irq0();
 extern void _irq1();
 extern void _irq2();

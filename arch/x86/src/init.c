@@ -4,9 +4,9 @@
 #include "arch/mmu.h"
 #include "core/addrSpace.h"
 #include "core/memArea.h"
-#include "core/memDefs.h"
 #include "core/smp.h"
 #include "core/staticHooks.h"
+#include "core/sysConfig.h"
 #include "drivers/d_screen.h"
 #include "idt.h"
 #include "isr.h"
@@ -50,13 +50,17 @@ __attribute__((section(".text.start"), used)) void boot_main(u8_ct cpu_index)
 
         smp_init_lock(&boot_spinlock);
 
+        smp_lock(&boot_spinlock);
         lapic_start_aps();
+        smp_unlock(&boot_spinlock);
     }
     else
     {
         idt_load();
 
+        smp_lock(&boot_spinlock);
         lapic_enable();
+        smp_unlock(&boot_spinlock);
     }
 
     ASM("sti"); // Enable interrupts again

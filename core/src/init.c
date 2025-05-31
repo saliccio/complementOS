@@ -6,8 +6,8 @@
 #include "core/kernelHeap.h"
 #include "core/ld.h"
 #include "core/memArea.h"
-#include "core/memDefs.h"
 #include "core/staticHooks.h"
+#include "core/sysConfig.h"
 #include "drivers/ahci.h"
 #include "drivers/d_screen.h"
 #include "elfLoader.h"
@@ -66,14 +66,14 @@ void core_init()
 static err_code_ct load_entire_kernel()
 {
     err_code_ct ret = NO_ERROR;
-    addr_ct elf_start = (addr_ct)ELF_START_ADDR;
+    addr_ct elf_start = ELF_START_ADDR;
     size_ct already_loaded_size = (BOOT_LOADED_SECTORS)*SECTOR_SIZE;
     size_ct to_load_size = elf_get_load_size(elf_start);
 
     if (already_loaded_size < to_load_size)
     {
         u32_ct sector_count = (to_load_size - already_loaded_size) / SECTOR_SIZE;
-        addr_ct load_addr = (addr_ct)ELF_START_ADDR + already_loaded_size;
+        addr_ct load_addr = ELF_START_ADDR + already_loaded_size;
         ret = ahci_rw_main_disk(NEXT_LBA_TO_LOAD, sector_count, load_addr, FALSE);
         if (NO_ERROR != ret)
         {
@@ -90,8 +90,6 @@ static err_code_ct load_entire_kernel()
     return NO_ERROR;
 }
 
-ATTACH_STATIC_HOOK(MMU_INIT_END, load_entire_kernel, 90);
-
 void core_entry(addr_ct arg)
 {
     while (1)
@@ -99,3 +97,5 @@ void core_entry(addr_ct arg)
         // Hang OS execution
     }
 }
+
+ATTACH_STATIC_HOOK(MMU_INIT_END, load_entire_kernel, 90);

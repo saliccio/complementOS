@@ -2,6 +2,8 @@
 #include "arch/asm.h"
 #include "core/addrSpace.h"
 #include "core/ld.h"
+#include "core/sysConfig.h"
+#include "decrementer.h"
 #include "drivers/d_screen.h"
 #include "mmu.h"
 #include "pit.h"
@@ -27,8 +29,6 @@
 #define APIC_REG_TIMER_INIT 0x380
 #define APIC_REG_TIMER_COUNT 0x390
 #define APIC_REG_TIMER_DIV 0x3E0
-
-#define APIC_TIMER_VECTOR 0x20 // Choose a free interrupt vector (avoid 0–31)
 
 // IPI command definitions
 #define APIC_ICR_DELIVERY_FIXED 0x00000000
@@ -71,6 +71,32 @@ static inline void lapic_write(u32_ct reg, u32_ct value)
     *((volatile u32_ct *)(apic_base_addr + reg)) = value;
 }
 
+static void calibrate_timer()
+{
+    /* Set LAPIC timer divisor to 16 */
+    lapic_write(APIC_REG_TIMER_DIV, 0b0101);
+    /* Set LAPIC timer interrupt vector and make it one-shot */
+    lapic_write(APIC_REG_LVT_TIMER, APIC_TIMER_VECTOR | 0xFF);
+    /* Set LAPIC timer initial value (temporary for calibration) */
+    lapic_write(APIC_REG_TIMER_INIT, 0xFFFFFFFF);
+
+    pit_wait_ms(10);
+
+    u32_ct elapsed_ticks = 0xFFFFFFFF - lapic_read(APIC_REG_TIMER_COUNT);
+    u32_ct lapic_freq_hz = elapsed_ticks * 100;
+
+    vga_printf("LAPIC Timer Frequency for Core %d = %d Hz\n", lapic_get_core_id(), lapic_freq_hz);
+
+    u32_ct lapic_count = lapic_freq_hz / TICK_RATE_HZ;
+
+    /* Set LAPIC timer interrupt vector and make it periodic */
+    lapic_write(APIC_REG_LVT_TIMER, APIC_TIMER_VECTOR | (1 << 17));
+    /* Set LAPIC timer initial value */
+    lapic_write(APIC_REG_TIMER_INIT, lapic_count);
+    /* Set LAPIC timer current value */
+    lapic_write(APIC_REG_TIMER_COUNT, lapic_count);
+}
+
 void lapic_enable()
 {
     u64_ct apic_msr = read_msr(APIC_BASE_MSR);
@@ -79,6 +105,8 @@ void lapic_enable()
 
     /* Set Spurious Interrupt Vector Register to enable APIC */
     lapic_write(APIC_REG_SVR, lapic_read(APIC_REG_SVR) | 0x100);
+
+    calibrate_timer();
 }
 
 err_code_ct lapic_init()
@@ -89,8 +117,8 @@ err_code_ct lapic_init()
     apic_base_addr = (u32_ct)(apic_msr & APIC_BASE_ADDR_MASK);
     vga_printf("APIC Base Address = %p\n", apic_base_addr);
 
-    ret = mem_map_to_phys_addr(mem_get_kernel_mem_info(), KERNELIZED_ADDR(apic_base_addr), apic_base_addr, 1,
-                               PTE_READ_WRITE | PTE_UNCACHEABLE);
+    ret = mem_map_virt_addr(mem_get_kernel_mem_info(), KERNELIZED_ADDR(apic_base_addr), apic_base_addr, 1,
+                            PTE_READ_WRITE | PTE_UNCACHEABLE);
 
     if (NO_ERROR != ret)
     {
@@ -98,6 +126,8 @@ err_code_ct lapic_init()
     }
 
     lapic_enable();
+
+    decrementer_init();
 
     return ret;
 }

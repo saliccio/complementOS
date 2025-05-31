@@ -4,6 +4,9 @@
 #include "errCodes.h"
 #include "types.h"
 
+/* Timer interrupt vector */
+#define APIC_TIMER_VECTOR 0x30
+
 typedef enum ipi_destination
 {
     NO_SHORTHAND = 0,

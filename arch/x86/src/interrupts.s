@@ -120,6 +120,7 @@ global _exc28
 global _exc29
 global _exc30
 global _exc31
+global _exc32
 
 global _irq0
 global _irq1
@@ -356,6 +357,13 @@ _exc31:
     cli
     push 0
     push 31
+    jmp exc_housekeeping
+
+; 32: APIC Decrementer
+_exc32:
+    cli
+    push 0
+    push 48
     jmp exc_housekeeping
 
 _irq0:

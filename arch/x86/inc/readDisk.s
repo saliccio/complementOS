@@ -36,7 +36,7 @@ next_sector:
     push dx                                    ; Save DX (head & drive)
 
     mov ah, 0x02                               ; BIOS Read Sector function
-    mov al, 64                                 ; Number of sectors
+    mov al, 128                                ; Number of sectors
     int 0x13                                   ; Call BIOS interrupt
     jc read_error                              ; Jump if error occurs
 

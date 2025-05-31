@@ -68,7 +68,7 @@ err_code_ct elf_load(addr_ct elf_start, bool_ct is_kernel)
 
             if (is_kernel)
             {
-                mapping_flags |= FORCE_IF_ALREADY_MAPPED;
+                mapping_flags |= FORCE_MAP;
                 mem_context = mem_get_kernel_mem_info();
             }
             else
@@ -76,9 +76,9 @@ err_code_ct elf_load(addr_ct elf_start, bool_ct is_kernel)
                 mapping_flags |= PTE_USER;
             }
 
-            err_code_ct map_ret = mem_map_to_phys_addr(
-                mem_context, ALIGN_DOWN_TO_ADDR(ph->p_vaddr, PAGE_SIZE), ALIGN_DOWN_TO_ADDR(ph->p_paddr, PAGE_SIZE),
-                ALIGN_UP_TO_VAL(ph->p_memsz, PAGE_SIZE) / PAGE_SIZE, mapping_flags);
+            err_code_ct map_ret = mem_map_virt_addr(mem_context, ALIGN_DOWN_TO_ADDR(ph->p_vaddr, PAGE_SIZE),
+                                                    ALIGN_DOWN_TO_ADDR(ph->p_paddr, PAGE_SIZE),
+                                                    ALIGN_UP_TO_VAL(ph->p_memsz, PAGE_SIZE) / PAGE_SIZE, mapping_flags);
             if (NO_ERROR != map_ret)
             {
                 return map_ret;

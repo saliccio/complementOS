@@ -71,8 +71,5 @@ __attribute__((section(".text.start"), used)) void boot_main(u8_ct cpu_index)
     addr_ct stack_base = mem_area_alloc_with_alignment(KSTACK_SIZE, 0x1000);
     smp_unlock(&boot_spinlock);
 
-    while (1)
-        ;
-
     run_func_with_stack(stack_base, core_entry, NULL);
 }

@@ -259,15 +259,15 @@ err_code_ct mmu_map_memory(page_map_info_ct *info, addr_ct virt_addr, addr_ct ph
         bool_ct free_ret = TRUE;
         if (allocated_pdpt)
         {
-            free_ret = firstfit_free(&mmu_mem_pool, pdpt);
+            free_ret = firstfit_free(&mmu_mem_pool, pdpt, PAGE_SIZE);
         }
         if (allocated_pd)
         {
-            free_ret &= firstfit_free(&mmu_mem_pool, pd);
+            free_ret &= firstfit_free(&mmu_mem_pool, pd, PAGE_SIZE);
         }
         if (allocated_pt)
         {
-            free_ret &= firstfit_free(&mmu_mem_pool, pt);
+            free_ret &= firstfit_free(&mmu_mem_pool, pt, PAGE_SIZE);
         }
         if (!free_ret)
         {

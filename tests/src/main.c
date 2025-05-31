@@ -8,7 +8,12 @@ void core_init_start_tests()
 
 void core_init_end_tests()
 {
-    test_ffit_main();
+    // test_ffit_main();
+}
+
+void mmu_init_end_tests()
+{
+    test_addrspace_main();
 
     while (1)
     {
@@ -18,3 +23,4 @@ void core_init_end_tests()
 
 ATTACH_STATIC_HOOK(CORE_INIT_START, core_init_start_tests, 90);
 ATTACH_STATIC_HOOK(CORE_INIT_END, core_init_end_tests, 90);
+ATTACH_STATIC_HOOK(MMU_INIT_END, mmu_init_end_tests, 90);

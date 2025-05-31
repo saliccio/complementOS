@@ -256,8 +256,8 @@ static err_code_ct ahci_init()
                 {
                     u32_ct tmp_abar = pci_config_read(bus, slot, func, 0x24); // BAR5
                     abar = (hba_mem_regs_ct *)(tmp_abar & ~0xF);              // Clear bottom bits
-                    ret = mem_map_to_phys_addr(mem_get_kernel_mem_info(), KERNELIZED_ADDR(abar), abar, 1,
-                                               PTE_READ_WRITE | PTE_UNCACHEABLE);
+                    ret = mem_map_virt_addr(mem_get_kernel_mem_info(), KERNELIZED_ADDR(abar), abar, 1,
+                                            PTE_READ_WRITE | PTE_UNCACHEABLE);
                     if (NO_ERROR != ret && ALREADY_MAPPED != ret)
                     {
                         return INIT_ERROR;

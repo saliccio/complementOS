@@ -15,7 +15,6 @@ typedef enum ffit_alloc_constraint
 void firstfit_init(firstfit_pool_ct *pool, addr_ct (*xmalloc)(size_ct size), void (*xfree)(addr_ct addr))
 {
     pool->first_block = NULL;
-    pool->first_alloc_info = NULL;
     pool->xmalloc = xmalloc;
     pool->xfree = xfree;
 }
@@ -119,27 +118,13 @@ bool_ct firstfit_add_block(firstfit_pool_ct *pool, addr_ct start, size_ct size)
     return TRUE;
 }
 
-static inline void insert_alloc_info(firstfit_pool_ct *pool, firstfit_alloc_info_ct *info, addr_ct start, size_ct size)
-{
-    info->size = size;
-    info->start = start;
-    info->next = pool->first_alloc_info;
-    pool->first_alloc_info = info;
-}
-
 static inline addr_ct alloc_common(firstfit_pool_ct *pool, ffit_alloc_constraint_ct constraint, size_ct size,
                                    addr_ct start_addr, size_ct alignment)
 {
     firstfit_block_ct *curr_block = pool->first_block;
     firstfit_block_ct *prev_block = NULL;
 
-    firstfit_alloc_info_ct *info = pool->xmalloc(sizeof(firstfit_alloc_info_ct));
-    if (NULL == info)
-    {
-        return NULL;
-    }
-
-    // These are used for potential splits if constraint is ALIGNMENT or START_ADDRESS:
+    /* These are used for potential splits if constraint is ALIGNMENT or START_ADDRESS: */
     firstfit_block_ct *block_if_split = NULL;
     addr_ct start_if_split;
     size_ct max_right_offset_if_split = 0;
@@ -228,15 +213,6 @@ static inline addr_ct alloc_common(firstfit_pool_ct *pool, ffit_alloc_constraint
         }
     }
 
-    if (found_block)
-    {
-        insert_alloc_info(pool, info, ret_addr, size);
-    }
-    else
-    {
-        pool->xfree(info);
-    }
-
     return ret_addr;
 }
 
@@ -250,16 +226,6 @@ addr_ct firstfit_alloc(firstfit_pool_ct *pool, size_ct size)
     return alloc_common(pool, NO_CONSTRAINTS, size, NULL, 0);
 }
 
-addr_ct firstfit_alloc_with_start_addr(firstfit_pool_ct *pool, size_ct size, addr_ct start_addr)
-{
-    if (0 == size)
-    {
-        return NULL;
-    }
-
-    return alloc_common(pool, START_ADDRESS, size, start_addr, 0);
-}
-
 addr_ct firstfit_alloc_with_alignment(firstfit_pool_ct *pool, size_ct size, size_ct alignment)
 {
     if (0 == size || 0 == alignment)
@@ -270,45 +236,111 @@ addr_ct firstfit_alloc_with_alignment(firstfit_pool_ct *pool, size_ct size, size
     return alloc_common(pool, ALIGNMENT, size, NULL, alignment);
 }
 
-bool_ct firstfit_free(firstfit_pool_ct *pool, addr_ct addr)
+addr_ct firstfit_alloc_with_start_addr(firstfit_pool_ct *pool, size_ct size, addr_ct start_addr)
+{
+    if (0 == size)
+    {
+        return NULL;
+    }
+
+    return alloc_common(pool, START_ADDRESS, size, start_addr, 0);
+}
+
+void firstfit_force_alloc(firstfit_pool_ct *pool, size_ct size, addr_ct start_addr)
+{
+    if (0 == size)
+    {
+        return NULL;
+    }
+
+    err_code_ct ret;
+    firstfit_block_ct *curr_block = pool->first_block;
+    firstfit_block_ct *prev_block = NULL;
+    addr_ct end_addr = start_addr + size;
+    addr_ct curr_addr = start_addr;
+    while (NULL != curr_block && curr_block->start < end_addr &&
+           (start_addr == curr_block->start || end_addr == curr_block->start + curr_block->size ||
+            IS_BETWEEN(start_addr, curr_block->start, curr_block->start + curr_block->size) ||
+            IS_BETWEEN(curr_block->start, start_addr, end_addr)))
+    {
+        size_ct size_left = end_addr - curr_addr;
+        bool_ct delete_block = FALSE;
+
+        if (curr_addr == curr_block->start)
+        {
+            /* The entire block is eaten up */
+            if (curr_block->size <= size_left)
+            {
+                if (NULL == prev_block)
+                {
+                    pool->first_block = curr_block->next_block;
+                }
+                else
+                {
+                    prev_block->next_block = curr_block->next_block;
+                }
+
+                delete_block = TRUE;
+            }
+            else
+            {
+                curr_block->start += size_left;
+                curr_block->size -= size_left;
+            }
+        }
+        else
+        {
+            slong_ct rhs_size = ((size_ct)(curr_block->start + curr_block->size)) - ((size_ct)(curr_addr + size_left));
+            if (rhs_size > 0)
+            {
+                curr_block->size -= (size_left + rhs_size);
+
+                firstfit_block_ct *rhs_block = pool->xmalloc(sizeof(firstfit_block_ct));
+                ret = create_block(pool, &rhs_block, curr_block->next_block, rhs_size, (s8_ct *)curr_addr + size_left);
+                if (!ret)
+                {
+                    vga_printf("Firstfit pool corrupted!\n");
+                    while (1)
+                    {
+                        /* Pool corrupted! */
+                    }
+                }
+
+                curr_block->next_block = rhs_block;
+            }
+            else
+            {
+                curr_block->size = (size_ct)curr_addr - (size_ct)curr_block->start;
+            }
+        }
+
+        if (NULL != curr_block->next_block)
+        {
+            curr_addr = curr_block->next_block->start;
+        }
+
+        if (delete_block)
+        {
+            firstfit_block_ct *temp_block = curr_block;
+            curr_block = curr_block->next_block;
+            pool->xfree(temp_block);
+        }
+        else
+        {
+            prev_block = curr_block;
+            curr_block = curr_block->next_block;
+        }
+    }
+}
+
+bool_ct firstfit_free(firstfit_pool_ct *pool, addr_ct addr, size_ct size)
 {
     if (NULL == addr)
     {
         return FALSE;
     }
 
-    firstfit_alloc_info_ct *curr_info = pool->first_alloc_info;
-    firstfit_alloc_info_ct *prev_info = NULL;
-    size_ct allocated_size = 0;
-    while (NULL != curr_info)
-    {
-        if (addr == curr_info->start)
-        {
-            allocated_size = curr_info->size;
-            break;
-        }
-
-        prev_info = curr_info;
-        curr_info = curr_info->next;
-    }
-
-    if (NULL == curr_info)
-    {
-        return FALSE;
-    }
-
-    if (NULL == prev_info)
-    {
-        pool->first_alloc_info = curr_info->next;
-    }
-    else
-    {
-        prev_info->next = curr_info->next;
-    }
-
-    pool->xfree(curr_info);
-
-    return firstfit_add_block(pool, addr, allocated_size);
+    return firstfit_add_block(pool, addr, size);
 }
 
 addr_ct firstfit_get_first_free_address(firstfit_pool_ct *pool)

@@ -1,4 +1,5 @@
 #include "core/staticHooks.h"
+#include "drivers/d_screen.h"
 #include "types.h"
 
 extern addr_ct _hook_BOOT_START_start;
@@ -22,6 +23,9 @@ static addr_ct func_addresses[NUM_OF_STATIC_HOOKS][2] = {{&_hook_BOOT_START_star
                                                          {&_hook_MMU_INIT_END_start, &_hook_MMU_INIT_END_end},
                                                          {&_hook_BOOT_END_start, &_hook_BOOT_END_end}};
 
+static string_ct point_names[NUM_OF_STATIC_HOOKS] = {"BOOT START", "CORE INIT START", "CORE INIT END", "MMU INIT END",
+                                                     "BOOT END"};
+
 err_code_ct call_static_hook_functions(static_hook_ct hook_point)
 {
     err_code_ct ret = NO_ERROR;
@@ -34,7 +38,10 @@ err_code_ct call_static_hook_functions(static_hook_ct hook_point)
 
         if (NO_ERROR != ret)
         {
-            return ret;
+            vga_printf("At hook point %s, function %p has failed.\n", point_names[hook_point], curr_address);
+            while (1)
+            {
+            }
         }
 
         curr_address--;

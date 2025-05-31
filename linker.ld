@@ -11,8 +11,6 @@ VIRT_OFFSET = KERNEL_VMA - KERNEL_LMA;
 
 KERNEL_AREA_SIZE = 10M;
 
-TEMP_ELF_LOAD_AREA_SIZE = 1M;
-
 PHDRS
 {
   text         PT_LOAD FLAGS(5); /* R + X */
@@ -70,15 +68,14 @@ SECTIONS
         _bss_end = .;
     } :bss
 
-    _temp_elf_load_area_start = .;
-    . += TEMP_ELF_LOAD_AREA_SIZE;
-    _temp_elf_load_area_end = .;
-
     .kernel_area ALIGN(PAGE_SIZE) : AT(ALIGN(ADDR(.kernel_area) - VIRT_OFFSET, PAGE_SIZE))
     {
         _kernel_area_start = .;
         . += KERNEL_AREA_SIZE;
         _kernel_area_end = .;
+
+        _kernel_area_paddr_start = ALIGN(ADDR(.kernel_area) - VIRT_OFFSET, PAGE_SIZE);
+        _kernel_area_paddr_end = _kernel_area_paddr_start + KERNEL_AREA_SIZE;
     } :kernel_area
 
     /DISCARD/ :

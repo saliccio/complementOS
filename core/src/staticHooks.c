@@ -26,7 +26,7 @@ static addr_ct func_addresses[NUM_OF_STATIC_HOOKS][2] = {{&_hook_BOOT_START_star
 static string_ct point_names[NUM_OF_STATIC_HOOKS] = {"BOOT START", "CORE INIT START", "CORE INIT END", "MMU INIT END",
                                                      "BOOT END"};
 
-err_code_ct call_static_hook_functions(static_hook_ct hook_point)
+void call_static_hook_functions(static_hook_ct hook_point)
 {
     err_code_ct ret = NO_ERROR;
     const static_hook_0_arg_func_ct start_address = (static_hook_0_arg_func_ct *)func_addresses[hook_point][0];
@@ -46,6 +46,4 @@ err_code_ct call_static_hook_functions(static_hook_ct hook_point)
 
         curr_address--;
     }
-
-    return ret;
 }

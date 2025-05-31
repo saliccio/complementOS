@@ -24,4 +24,4 @@ typedef static_hook_0_arg_func_ct BOOT_END_func_ct;
     __attribute__((unused)) static CONCAT_2(hook_point, _func_ct) CONCAT_3(hook_point, _fptr_, priority)               \
         __attribute__((section(STRINGIFY(.hook_##hook_point##_##priority)))) = function;
 
-err_code_ct call_static_hook_functions(static_hook_ct hook_point);
+void call_static_hook_functions(static_hook_ct hook_point);
